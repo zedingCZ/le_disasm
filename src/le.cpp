@@ -180,7 +180,7 @@ LinearExecutable::Loader::load_header (void)
 
   if (byte < 0x40)
     {
-      cerr << "Not a LE executable\n";
+      cerr << "Not a LE executable, at offset 0x18: expected 0x40 or more, got 0x" << std::hex << byte << std::endl;
       return false;
     }
 
