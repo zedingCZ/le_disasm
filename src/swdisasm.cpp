@@ -1286,6 +1286,11 @@ main (int argc, char **argv)
     }
 
   ifs.open (argv[1], std::ios::binary);
+  if(!ifs.is_open()) {
+    std::cerr << "Error opening file: " << argv[1];
+    return 1;
+  }
+
   le = LinearExecutable::load (&ifs, argv[1]);
 
   image = create_image (&ifs, le);
