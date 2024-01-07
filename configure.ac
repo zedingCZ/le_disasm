@@ -84,27 +84,27 @@ AM_CONDITIONAL([TARGET_WINDOWS], [test "$have_windows" = "yes"])
 AM_CONDITIONAL([HAS_WINDRES], [test -n "${WINDRES}" -a "$have_windows" = "yes"])
 
 AC_CHECK_LIB(intl, libintl_version,,
-  AC_MSG_ERROR([libintl not found])
+  AC_MSG_FAILURE([libintl not found])
 )
 AC_SUBST(INTL_LIBS, -lintl)
 AC_SUBST(INTL_CFLAGS, )
 
 # Required by libbfd
 AC_CHECK_LIB(iberty, lrealpath,,
-  AC_MSG_ERROR([libiberty not found])
+  AC_MSG_FAILURE([libiberty not found])
 )
 AC_SUBST(IBERTY_LIBS, -liberty)
 AC_SUBST(IBERTY_CFLAGS, )
 
 # Required by libbfd
 AC_CHECK_LIB(z, inflate,,
-  AC_MSG_ERROR([zlib not found])
+  AC_MSG_FAILURE([zlib not found])
 )
 AC_SUBST(ZLIB_LIBS, -lz)
 AC_SUBST(ZLIB_CFLAGS, )
 
 AC_CHECK_LIB(bfd, bfd_openr,,
-  AC_MSG_ERROR([libbfd not found])
+  AC_MSG_FAILURE([libbfd not found])
 )
 AC_SUBST(BFD_LIBS, -lbfd)
 AC_SUBST(BFD_CFLAGS, )
@@ -113,7 +113,7 @@ AC_CHECK_HEADERS([bfd.h])
 
 #print_insn_i386
 AC_CHECK_LIB(opcodes, print_i386_disassembler_options,,
-  AC_MSG_ERROR([libopcodes not found])
+  AC_MSG_FAILURE([libopcodes not found])
 )
 AC_SUBST(OPCODES_LIBS, -lopcodes $INTL_LIBS $BFD_LIBS)
 AC_SUBST(OPCODES_CFLAGS, )
