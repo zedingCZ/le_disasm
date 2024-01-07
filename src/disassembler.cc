@@ -23,9 +23,6 @@
 #include <sstream>
 #include <stdexcept>
 
-#include "config.h"
-#include "dis-asm.h"
-
 #include "disassembler.h"
 #include "util.h"
 
@@ -96,13 +93,14 @@ Disassembler::Disassembler (void)
 
   init_disassemble_info (this->info, NULL,
     &Disassembler::receive_instruction_text,
-    NULL);
+    &Disassembler::receive_instruction_styled_text);
 
   this->info->arch               = bfd_arch_i386;
   this->info->mach               = bfd_mach_i386_i386;
   //this->info->disassembler_options = "intel-mnemonic"; // for intel syntax
   this->info->print_address_func = &Disassembler::print_address;
   //disassemble_init_for_target(this->info); // is this really needed?
+  this->print_insn = disassembler(this->info->arch, false, this->info->mach, NULL);
 }
 
 Disassembler::Disassembler (const Disassembler &other)
@@ -139,7 +137,6 @@ Disassembler::disassemble (uint32_t addr, const void *data, size_t length,
   int size;
   uint8_t data0, data1 = 0;
   bool have_target;
-  disassembler_ftype print_insn;
 
   assert (length > 0);
 
@@ -148,8 +145,7 @@ Disassembler::disassemble (uint32_t addr, const void *data, size_t length,
   this->info->buffer_vma    = addr;
   this->info->stream        = &context;
 
-  print_insn = disassembler(this->info->arch, false, this->info->mach, NULL);
-  size = print_insn (addr, this->info);
+  size = this->print_insn (addr, this->info);
   if (size < 0)
     throw std::runtime_error ("Failed to disassemble instruction");
 
@@ -241,7 +237,28 @@ Disassembler::receive_instruction_text (void *context, const char *fmt, ...)
   DisassemblerContext *ctx;
   char buffer[128];
   int ret;
-  
+
+  ctx = (DisassemblerContext *) context;
+
+  va_start (list, fmt);
+  ret = vsnprintf (buffer, sizeof (buffer) - 1, fmt, list);
+  buffer[ret] = 0;
+  va_end (list);
+
+  ctx->string << buffer;
+
+  return ret;
+}
+
+int
+Disassembler::receive_instruction_styled_text (void *context,
+		enum disassembler_style style, const char *fmt, ...)
+{
+  va_list list;
+  DisassemblerContext *ctx;
+  char buffer[128];
+  int ret;
+
   ctx = (DisassemblerContext *) context;
 
   va_start (list, fmt);
