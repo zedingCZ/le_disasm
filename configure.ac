@@ -83,67 +83,50 @@ AM_CONDITIONAL([TARGET_WINDOWS], [test "$have_windows" = "yes"])
 # On Windows, we can optionaly include resources in the executable.
 AM_CONDITIONAL([HAS_WINDRES], [test -n "${WINDRES}" -a "$have_windows" = "yes"])
 
-AC_CHECK_LIB(intl, libintl_version,,
+# If a library is found after checking or searching like below, the
+# LIBS variable is updated to include that library while linking.
+
+AC_CHECK_LIB([intl], [libintl_version], [], [
   AC_MSG_FAILURE([libintl not found])
-)
-AC_SUBST(INTL_LIBS, -lintl)
-AC_SUBST(INTL_CFLAGS, )
+])
 
 # Required by libbfd
-AC_CHECK_LIB(iberty, lrealpath,,
+AC_CHECK_LIB([iberty], [lrealpath], [], [
   AC_MSG_FAILURE([libiberty not found])
-)
-AC_SUBST(IBERTY_LIBS, -liberty)
-AC_SUBST(IBERTY_CFLAGS, )
+])
+
+# Required by libbfd from binutils >= 2.40
+AC_SEARCH_LIBS([sframe_encode], [sframe], [], [
+  AC_MSG_WARN([unable to find function sframe_encode(), libbfd may require it])
+])
 
 # Required by libbfd
-AC_CHECK_LIB(z, inflate,,
+AC_CHECK_LIB([z], [inflate], [], [
   AC_MSG_FAILURE([zlib not found])
-)
-AC_SUBST(ZLIB_LIBS, -lz)
-AC_SUBST(ZLIB_CFLAGS, )
+])
 
-AC_CHECK_LIB(bfd, bfd_openr,,
+AC_CHECK_LIB([bfd], [bfd_init], [], [
   AC_MSG_FAILURE([libbfd not found])
-)
-AC_SUBST(BFD_LIBS, -lbfd)
-AC_SUBST(BFD_CFLAGS, )
+])
 
 AC_CHECK_HEADERS([bfd.h])
 
 #print_insn_i386
-AC_CHECK_LIB(opcodes, print_i386_disassembler_options,,
+AC_CHECK_LIB([opcodes], [print_i386_disassembler_options], [], [
   AC_MSG_FAILURE([libopcodes not found])
-)
-AC_SUBST(OPCODES_LIBS, -lopcodes $INTL_LIBS $BFD_LIBS)
-AC_SUBST(OPCODES_CFLAGS, )
+])
 
 # Arguments
 
-AC_ARG_ENABLE([debug],
-	      AS_HELP_STRING([--enable-debug=@<:@no|yes|full@:>@],
-			     [enable debugging options]),
-	      [use_debug=$enableval], [use_debug=no])
+#AC_ARG_ENABLE([debug],
+#	      AS_HELP_STRING([--enable-debug=@<:@no|yes|full@:>@],
+#			     [enable debugging options]),
+#	      [use_debug=$enableval], [use_debug=no])
 
 # Flags
 
-AC_MSG_CHECKING([whether to enable debugging options])
-AS_IF([test "$use_debug" = "yes" || test "$use_debug" = "full"], [
-  AC_DEFINE([ENABLE_DEBUG], 1, [Define to 1 if compiling in debug mode])
-  CPPFLAGS="$CPPFLAGS -DDEBUG"
-  CFLAGS="$CFLAGS -g -O0"
-], [
-  AS_IF([test "$use_debug" != "no"], [
-    AC_MSG_ERROR([Invalid value specified for --enable-debug])
-  ])
-])
-AC_MSG_RESULT([$use_debug])
-
 CFLAGS="$CFLAGS -Wall -Wextra -Wno-unused-parameter"
 CFLAGS="$CFLAGS -include \"\$(top_builddir)/src/config.h\""
-
-CFLAGS="$CFLAGS $OPCODES_CFLAGS"
-LIBS="$LIBS $OPCODES_LIBS"
 
 AC_SUBST([WINDRES])
 
