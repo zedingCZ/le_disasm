@@ -65,7 +65,6 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE([
 have_posix=yes
 have_windows=no
 have_darwin=no
-stack_alignment=4
 
 case "$host" in
   *-*-mingw*)
@@ -74,7 +73,6 @@ case "$host" in
     ;;
   *-*-darwin*)
     have_darwin=yes
-    stack_alignment=16
     ;;
 esac
 
@@ -87,12 +85,12 @@ AM_CONDITIONAL([HAS_WINDRES], [test -n "${WINDRES}" -a "$have_windows" = "yes"])
 # LIBS variable is updated to include that library while linking.
 
 AC_CHECK_LIB([intl], [libintl_version], [], [
-  AC_MSG_FAILURE([libintl not found])
+  AC_MSG_FAILURE([library libintl not found])
 ])
 
 # Required by libbfd
 AC_CHECK_LIB([iberty], [lrealpath], [], [
-  AC_MSG_FAILURE([libiberty not found])
+  AC_MSG_FAILURE([library libiberty not found])
 ])
 
 # Required by libbfd from binutils >= 2.40
@@ -100,20 +98,26 @@ AC_SEARCH_LIBS([sframe_encode], [sframe], [], [
   AC_MSG_WARN([unable to find function sframe_encode(), libbfd may require it])
 ])
 
-# Required by libbfd
-AC_CHECK_LIB([z], [inflate], [], [
-  AC_MSG_FAILURE([zlib not found])
+# Required by libbfd from binutils >= 2.39
+AC_CHECK_LIB([z], [deflate], [], [
+  AC_MSG_WARN([library zlib not found, libbfd may require it])
 ])
+
+# Required by libbfd from binutils >= 2.40
+AC_CHECK_LIB([zstd], ZSTD_decompress, [], [
+  AC_MSG_WARN([library zstd not found, libbfd may require it])
+])
+AC_CHECK_HEADERS([zstd.h])
+
 
 AC_CHECK_LIB([bfd], [bfd_init], [], [
-  AC_MSG_FAILURE([libbfd not found])
+  AC_MSG_FAILURE([library libbfd not found])
 ])
-
 AC_CHECK_HEADERS([bfd.h])
 
 #print_insn_i386
 AC_CHECK_LIB([opcodes], [print_i386_disassembler_options], [], [
-  AC_MSG_FAILURE([libopcodes not found])
+  AC_MSG_FAILURE([library libopcodes not found])
 ])
 
 # Arguments
