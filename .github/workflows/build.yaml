@@ -63,6 +63,7 @@ jobs:
         run: autoreconf -ivf
 
       - name: Configure
+        id: configure-app
         env:
           CFLAGS: "-m32"
           CXXFLAGS: "-m32"
@@ -71,6 +72,14 @@ jobs:
         run: |
           mkdir -p release; cd release
           ../configure
+
+      - name: Upload Configure logs
+        if: failure() && steps.configure-app.outcome != 'success'
+        uses: actions/upload-artifact@v3
+        with:
+          name: configure-ubuntu-logs
+          path: release/config.log
+          retention-days: 10
 
       - name: Build executable
         run: |
@@ -126,7 +135,7 @@ jobs:
         run: autoreconf -ivf
 
       - name: Configure
-        id: cofigure-app
+        id: configure-app
         env:
           CFLAGS: "-m32"
           CXXFLAGS: "-m32"
@@ -136,10 +145,10 @@ jobs:
           ../configure
 
       - name: Upload Configure logs
-        if: failure() && steps.cofigure-app.outcome != 'success'
+        if: failure() && steps.configure-app.outcome != 'success'
         uses: actions/upload-artifact@v3
         with:
-          name: cofigure-logs
+          name: configure-win32-logs
           path: release/config.log
           retention-days: 10
 
