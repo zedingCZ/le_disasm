@@ -20,9 +20,11 @@
 #include <cassert>
 #include <cctype>
 #include <cstdarg>
-#include <dis-asm.h>
 #include <sstream>
 #include <stdexcept>
+
+#include "config.h"
+#include "dis-asm.h"
 
 #include "disassembler.h"
 #include "util.h"
@@ -93,10 +95,14 @@ Disassembler::Disassembler (void)
   this->info = new disassemble_info;
 
   init_disassemble_info (this->info, NULL,
-			 &Disassembler::receive_instruction_text);
+    &Disassembler::receive_instruction_text,
+    NULL);
 
+  this->info->arch               = bfd_arch_i386;
   this->info->mach               = bfd_mach_i386_i386;
+  //this->info->disassembler_options = "intel-mnemonic"; // for intel syntax
   this->info->print_address_func = &Disassembler::print_address;
+  //disassemble_init_for_target(this->info); // is this really needed?
 }
 
 Disassembler::Disassembler (const Disassembler &other)
@@ -133,6 +139,7 @@ Disassembler::disassemble (uint32_t addr, const void *data, size_t length,
   int size;
   uint8_t data0, data1 = 0;
   bool have_target;
+  disassembler_ftype print_insn;
 
   assert (length > 0);
 
@@ -141,7 +148,8 @@ Disassembler::disassemble (uint32_t addr, const void *data, size_t length,
   this->info->buffer_vma    = addr;
   this->info->stream        = &context;
 
-  size = print_insn_i386_att (addr, this->info);
+  print_insn = disassembler(this->info->arch, false, this->info->mach, NULL);
+  size = print_insn (addr, this->info);
   if (size < 0)
     throw std::runtime_error ("Failed to disassemble instruction");
 
