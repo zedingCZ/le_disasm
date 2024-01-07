@@ -99,7 +99,7 @@ create_image (std::istream *is, const LinearExecutable *lx)
       if (!apply_fixups (lx, oi, &data))
 	{
 	  cerr << "Failed to apply fixups.\n";
-	  return false;
+	  return NULL;
 	}
 
       objects.push_back (Image::Object (oi, ohdr->base_address,
