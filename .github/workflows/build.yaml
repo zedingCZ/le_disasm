@@ -54,7 +54,7 @@ jobs:
 
           apt update
           apt install -y \
-            gcc-multilib g++-multilib lib32z1
+            gcc-multilib g++-multilib lib32z1 libc6-dev
 
           apt install -y \
             build-essential autoconf libtool make
@@ -86,7 +86,7 @@ jobs:
           echo "PKG_NAME=le_disasm-$PKG_VERSION-ubuntu-patch" >> $GITHUB_ENV
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.PKG_NAME }}
           path: release/pkg/**
@@ -126,6 +126,7 @@ jobs:
         run: autoreconf -ivf
 
       - name: Configure
+        id: cofigure-app
         env:
           CFLAGS: "-m32"
           CXXFLAGS: "-m32"
@@ -133,6 +134,14 @@ jobs:
         run: |
           mkdir -p release; cd release
           ../configure
+
+      - name: Upload Configure logs
+        if: failure() && steps.cofigure-app.outcome != 'success'
+        uses: actions/upload-artifact@v3
+        with:
+          name: cofigure-logs
+          path: release/config.log
+          retention-days: 10
 
       - name: Build executable
         run: |
@@ -148,7 +157,7 @@ jobs:
           echo "PKG_NAME=le_disasm-$PKG_VERSION-win32-patch" >> $GITHUB_ENV
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.PKG_NAME }}
           path: release/pkg/**
