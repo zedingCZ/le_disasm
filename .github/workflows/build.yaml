@@ -54,7 +54,8 @@ jobs:
 
           apt update
           apt install -y \
-            gcc-multilib g++-multilib lib32z1 libc6-dev
+            gcc-multilib g++-multilib \
+            lib32z1 libc6-dev:i386
 
           apt install -y \
             build-essential autoconf libtool make
