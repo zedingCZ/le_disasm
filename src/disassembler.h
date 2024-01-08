@@ -65,7 +65,7 @@ protected:
   static int receive_instruction_text (void *context, const char *fmt, ...);
   static int receive_instruction_styled_text (void *context,
 		enum disassembler_style style, const char *fmt, ...);
-  static void print_address (unsigned long address, disassemble_info *info);
+  static void print_address (bfd_vma address, disassemble_info *info);
   
 public:
   Disassembler (void);

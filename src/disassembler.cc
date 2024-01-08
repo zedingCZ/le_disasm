@@ -272,7 +272,7 @@ Disassembler::receive_instruction_styled_text (void *context,
 }
 
 void
-Disassembler::print_address (unsigned long address, disassemble_info *info)
+Disassembler::print_address (bfd_vma address, disassemble_info *info)
 {
-  info->fprintf_func (info->stream, "0x%lx", address);
+  info->fprintf_func (info->stream, "0x%llx", (unsigned long long)address);
 }
