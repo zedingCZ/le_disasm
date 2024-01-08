@@ -12,6 +12,8 @@ swdisasm_SOURCES = \
 	le.cpp \
 	le_image.h \
 	le_image.cpp \
+	regions.h \
+	regions.cpp \
 	swdisasm.cpp \
 	util.h \
 	util.cpp
