@@ -24,6 +24,7 @@
 #include <stdexcept>
 
 #include "disassembler.h"
+#include "instruction.h"
 #include "util.h"
 
 static std::string
@@ -53,31 +54,6 @@ lower (const std::string &str)
 		  tolower);
 
   return out;
-}
-
-
-Instruction::Type
-Instruction::get_type (void)
-{
-  return this->type;
-}
-
-std::string
-Instruction::get_string (void)
-{
-  return this->string;
-}
-
-uint32_t
-Instruction::get_target (void)
-{
-  return this->target;
-}
-
-size_t
-Instruction::get_size (void)
-{
-  return this->size;
 }
 
 

@@ -4,6 +4,8 @@ bindir = $(prefix)/usr/$(PACKAGE)
 swdisasm_SOURCES = \
 	disassembler.h \
 	disassembler.cpp \
+	instruction.h \
+	instruction.cpp \
 	image.h \
 	image.cpp \
 	le.h \

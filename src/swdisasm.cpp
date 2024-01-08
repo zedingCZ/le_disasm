@@ -27,6 +27,7 @@
 #include <sstream>
 
 #include "disassembler.h"
+#include "instruction.h"
 #include "le.h"
 #include "le_image.h"
 #include "util.h"

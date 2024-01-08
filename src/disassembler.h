@@ -26,35 +26,8 @@
 #include "config.h"
 #include "dis-asm.h"
 
-struct Instruction
-{
-protected:
-  friend class Disassembler;
-
-public:
-  enum Type
-  {
-    MISC,
-    COND_JUMP,
-    JUMP,
-    CALL,
-    RET
-  };
-
-protected:
-  Type        type;
-  std::string string;
-  uint32_t    target;
-  size_t      size;
-
-public:
-  Type        get_type (void);
-  std::string get_string (void);
-  uint32_t    get_target (void);
-  size_t      get_size (void);
-};
-
 struct disassemble_info;
+class Instruction;
 
 class Disassembler
 {
