@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <cstddef>
+
 #include "image.h"
 
 Image::Object::Object (size_t index, uint32_t base_address, bool executable,

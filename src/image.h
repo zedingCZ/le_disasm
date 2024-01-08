@@ -20,6 +20,7 @@
 #define SWDISASM_IMAGE_H
 
 #include <inttypes.h>
+#include <cstddef>
 #include <vector>
 
 class Image

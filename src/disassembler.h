@@ -22,6 +22,7 @@
 #include <inttypes.h>
 #include <string>
 
+// Some versions of libopcodes require prior inclusion of config.h
 #include "config.h"
 #include "dis-asm.h"
 
