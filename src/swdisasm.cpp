@@ -1306,7 +1306,7 @@ main (int argc, char **argv)
   anal.set_label (Label (0x13c443, Label::JUMP));
   anal.set_label (Label (0x140096, Label::FUNCTION));
 
-#include "func_labels.cc"
+#include "func_labels.cpp"
 
   anal.run ();
   anal.remove_label (0x10000);

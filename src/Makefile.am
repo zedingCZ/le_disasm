@@ -3,16 +3,16 @@ bindir = $(prefix)/usr/$(PACKAGE)
 
 swdisasm_SOURCES = \
 	disassembler.h \
-	disassembler.cc \
+	disassembler.cpp \
 	image.h \
-	image.cc \
+	image.cpp \
 	le.h \
-	le.cc \
+	le.cpp \
 	le_image.h \
-	le_image.cc \
-	swdisasm.cc \
+	le_image.cpp \
+	swdisasm.cpp \
 	util.h \
-	util.cc
+	util.cpp
 
 swdisasm_CPPFLAGS = 
 

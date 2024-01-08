@@ -13,7 +13,7 @@ m4_define([swdisasm_version],
 
 AC_INIT([SW Disassembler], [swdisasm_version], [unavowed@vexillium.org], [swdisasm])
 
-AC_CONFIG_SRCDIR([src/disassembler.cc])
+AC_CONFIG_SRCDIR([src/disassembler.cpp])
 AC_CONFIG_HEADERS([src/config.h])
 AC_CONFIG_MACRO_DIRS([m4])
 
