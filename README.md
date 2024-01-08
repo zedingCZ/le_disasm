@@ -51,6 +51,63 @@ Once you've made sure you have the above, proceed with the following steps:
 
 You should now have a working `src/le_disasm` executable file.
 
+#### Build example - Ubuntu 22.04 64-bit
+
+Here are specific commands required to compile the executable on Ubuntu linux.
+
+First install the dependencies:
+
+```
+sudo apt install libc6-dev gettext
+sudo apt install libiberty-dev
+sudo apt install binutils-dev
+sudo apt install libzstd-dev
+sudo apt install build-essential autoconf libtool make
+```
+
+Now as our host is ready, we can start working on the actual `le_disasm` sources.
+Go to that folder, and generate build scripts from templates using autotools:
+
+```
+autoreconf -ivf
+```
+
+Next, proceed with the build steps; we will do that in a separate folder.
+
+```
+mkdir -p release; cd release
+../configure
+make V=1
+```
+
+The `V=1` variable makes `make` print each command it executes, which makes
+diagnosing issues easier.
+
+On success, this will create `release/src/le_disasm` executable file.
+
+In case you want a debug version of the binary (required for tracing bugs within the
+tool), the commands should include optimizations disable and debug symbols enable.
+To get such build, go to the `le_disasm` folder; then it would be prudent to create
+a separate build directory for debug version, and compile the tool there:
+
+```
+mkdir -p debug; cd debug
+CPPFLAGS="-DDEBUG -D__DEBUG" CFLAGS="-g -O0 -Wall" CXXFLAGS="-g -O0 -Wall" LDFLAGS="-g -O0 -Wall" ../configure
+make V=1
+```
+
+On success, this will create `debug/src/le_disasm` executable file.
+
+Explanation of the parameters:
+
+* The `-g -O0` flags make it easier to use a debugger like _GDB_ with the
+  binary, by storing symbols and disabling code optimizations.
+* The `-Wall` flags enable displaying more warnings during compilation.
+* The `-DDEBUG -D__DEBUG` defines make the binary print more information.
+* The flags are set separately for C preprocessor (`CPP`), compilers (`C`, `CXX`)
+  and linker (`LD`). See [GNU Automake documentation](https://www.gnu.org/software/automake/manual/html_node/Programs.html)
+  for details on that.
+
 #### Build example - MSYS2 updated 2023-07 on Windows
 
 Using Minimal System and the MinGW toolchain available within, it is possible
