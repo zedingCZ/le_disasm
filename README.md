@@ -35,6 +35,51 @@ Once you've made sure you have the above, proceed with the following steps:
 
 You should now have a working `src/le_disasm` executable file.
 
+#### Build example - MSYS2 updated 2023-07 on Windows
+
+Using Minimal System and the MinGW toolchain available within, it is possible
+to build the executable using the same way as for UNIX systems, with bash and autotools.
+
+First install the dependencies - mingw64:
+
+```
+pacman -S mingw-w64-x86_64-binutils mingw-w64-x86_64-pkgconf mingw-w64-x86_64-make mingw-w64-x86_64-gcc
+```
+
+Now as our host is ready, we can start working on the actual `le_disasm` sources.
+We will provide path to mingw64 aclocal config, just in case another toolchain is default.
+Go to the `le_disasm` folder, and generate build scripts from templates using autotools:
+
+```
+autoreconf -ivf --include=/mingw64/share/aclocal/
+```
+
+Next, proceed with the build steps; we will do that in a separate folder.
+Note how we are modifying PATH environment variable to make shell search for mingw32
+binaries before the default mingw64:
+
+```
+mkdir -p release; cd release
+../configure
+make V=1
+```
+
+On success, this will create `release/src/le_disasm.exe` executable file.
+Note that you need a pack of DLL files from `mingw64` folder to corretly run
+the executable on other Windows installations.
+
+In case you want a debug version of the binary (required for tracing bugs within the
+tool), the commands should include optimizations disable and debug symbols enable.
+To get such build, go to the `le_disasm` folder; then it would be prudent to create
+a separate build directory for debug version, and compile the tool there:
+
+```
+mkdir -p debug; cd debug
+CPPFLAGS="-DDEBUG" CFLAGS="-g -O0" CXXFLAGS="-g -O0" LDFLAGS="-g -O0" ../configure
+make V=1
+```
+On success, this will create `debug/src/le_disasm.exe` executable file.
+
 #### Build example - 32-bit toolchain of MSYS2 updated 2023-07 on Windows
 
 Using Minimal System and the MinGW toolchain available within, it is possible
