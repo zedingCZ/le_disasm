@@ -54,8 +54,10 @@ jobs:
 
           apt update
           apt install -y \
-            gcc-multilib g++-multilib \
-            lib32z1 libc6-dev:i386
+            gcc-multilib g++-multilib lib32z1 \
+            libc6-dev:i386 gettext:i386 \
+            libiberty-dev:i386 \
+            libzstd-dev:i386
 
           apt install -y \
             build-essential autoconf libtool make
@@ -78,7 +80,7 @@ jobs:
         if: failure() && steps.configure-app.outcome != 'success'
         uses: actions/upload-artifact@v3
         with:
-          name: configure-ubuntu-logs
+          name: configure-ubuntu-x86-logs
           path: release/config.log
           retention-days: 10
 
@@ -93,7 +95,7 @@ jobs:
           # Get version marking from C header
           PKG_VERSION=$(sed -n 's/^#define[ ]\+PACKAGE_VERSION "\([^"]\+\)"$/\1/p' src/config.h | head -n 1 | tr '.' '_')
           make V=1 DESTDIR=$PWD/pkg install
-          echo "PKG_NAME=le_disasm-$PKG_VERSION-ubuntu-patch" >> $GITHUB_ENV
+          echo "PKG_NAME=le_disasm-$PKG_VERSION-ubuntu-x86" >> $GITHUB_ENV
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
@@ -149,7 +151,7 @@ jobs:
         if: failure() && steps.configure-app.outcome != 'success'
         uses: actions/upload-artifact@v3
         with:
-          name: configure-win32-logs
+          name: configure-win-x86-logs
           path: release/config.log
           retention-days: 10
 
@@ -164,7 +166,74 @@ jobs:
           # Get version marking from C header
           PKG_VERSION=$(sed -n 's/^#define[ ]\+PACKAGE_VERSION "\([^"]\+\)"$/\1/p' src/config.h | head -n 1 | tr '.' '_')
           make V=1 DESTDIR=$PWD/pkg install
-          echo "PKG_NAME=le_disasm-$PKG_VERSION-win32-patch" >> $GITHUB_ENV
+          echo "PKG_NAME=le_disasm-$PKG_VERSION-win-x86" >> $GITHUB_ENV
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.PKG_NAME }}
+          path: release/pkg/**
+
+  windows-msys2-x86_64:
+    name: "Windows MSYS2, arch x86_64"
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: Checkout code at latest head
+        if: "${{ inputs.refToBuild == '' }}"
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Checkout code at requested ref
+        if: "${{ inputs.refToBuild != '' }}"
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.refToBuild }}
+          fetch-depth: 0
+
+      - name: Install MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+              git
+              unzip
+              mingw-w64-x86_64-toolchain
+              mingw-w64-x86_64-autotools
+
+      - name: Autoreconf
+        run: autoreconf -ivf
+
+      - name: Configure
+        id: configure-app
+        run: |
+          mkdir -p release; cd release
+          ../configure
+
+      - name: Upload Configure logs
+        if: failure() && steps.configure-app.outcome != 'success'
+        uses: actions/upload-artifact@v3
+        with:
+          name: configure-win-x86_64-logs
+          path: release/config.log
+          retention-days: 10
+
+      - name: Build executable
+        run: |
+          cd release
+          make V=1
+
+      - name: Copy for package
+        run: |
+          cd release
+          # Get version marking from C header
+          PKG_VERSION=$(sed -n 's/^#define[ ]\+PACKAGE_VERSION "\([^"]\+\)"$/\1/p' src/config.h | head -n 1 | tr '.' '_')
+          make V=1 DESTDIR=$PWD/pkg install
+          echo "PKG_NAME=le_disasm-$PKG_VERSION-win-x86_64" >> $GITHUB_ENV
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3

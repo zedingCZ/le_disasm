@@ -85,7 +85,7 @@ AM_CONDITIONAL([HAS_WINDRES], [test -n "${WINDRES}" -a "$have_windows" = "yes"])
 # LIBS variable is updated to include that library while linking.
 
 AC_CHECK_LIB([intl], [libintl_version], [], [
-  AC_MSG_FAILURE([library libintl not found])
+  AC_MSG_WARN([library libintl not found, either built into glibc or missing])
 ])
 
 # Required by libbfd

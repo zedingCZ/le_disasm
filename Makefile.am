@@ -8,4 +8,4 @@ install installdirs: SUBDIRS = src
 doc_DATA = COPYING
 docdir = $(prefix)/usr/$(PACKAGE)
 
-EXTRA_DIST = GPL3 res
+EXTRA_DIST = LICENSE res

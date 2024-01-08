@@ -49,7 +49,7 @@ install-exec-hook:
 		xargs -I {} find $(shell dirname $(shell which ${CXX})) -name '{}'))
 	## Remove duplicates
 	$(eval lib_SHARED_INSTALL := $(sort $(lib_SHARED_INSTALL)))
-	cp $(lib_SHARED_INSTALL) $(DESTDIR)${prefix}/opt/$(PACKAGE)
+	cp $(lib_SHARED_INSTALL) $(DESTDIR)${prefix}/usr/$(PACKAGE)
 endif
 
 
