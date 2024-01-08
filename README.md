@@ -14,7 +14,10 @@ This is a continuation of work on
 
 ## Building
 
-The tool should build correctly on any platform with a working port of libopcodes.
+The tool should build correctly on any platform with a working port of `libopcodes`.
+Though the `libopcodes` and `libbfd` APIs are considered internal between loader and gdb,
+and therefore are not exactly stable. If using newer versions of the libs, it may
+be required to do some code alterations.
 
 Below there are tested ways of building.
 
