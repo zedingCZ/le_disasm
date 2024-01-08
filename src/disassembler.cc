@@ -92,8 +92,12 @@ Disassembler::Disassembler (void)
   this->info = new disassemble_info;
 
   init_disassemble_info (this->info, NULL,
+#ifdef HAVE_LIBOPCODES_DISASSEMBLER_STYLE
     &Disassembler::receive_instruction_text,
     &Disassembler::receive_instruction_styled_text);
+#else
+    &Disassembler::receive_instruction_text);
+#endif
 
   this->info->arch               = bfd_arch_i386;
   this->info->mach               = bfd_mach_i386_i386;
@@ -250,6 +254,7 @@ Disassembler::receive_instruction_text (void *context, const char *fmt, ...)
   return ret;
 }
 
+#ifdef HAVE_LIBOPCODES_DISASSEMBLER_STYLE
 int
 Disassembler::receive_instruction_styled_text (void *context,
 		enum disassembler_style style, const char *fmt, ...)
@@ -270,6 +275,7 @@ Disassembler::receive_instruction_styled_text (void *context,
 
   return ret;
 }
+#endif
 
 void
 Disassembler::print_address (bfd_vma address, disassemble_info *info)

@@ -18,6 +18,10 @@
 /* Define to 1 if you have the `opcodes' library (-lopcodes). */
 #undef HAVE_LIBOPCODES
 
+/* Define to 1 if your libbfd init_disassemble_info() takes styled printf func
+   as last argument. */
+#undef HAVE_LIBOPCODES_DISASSEMBLER_STYLE
+
 /* Define to 1 if you have the `z' library (-lz). */
 #undef HAVE_LIBZ
 

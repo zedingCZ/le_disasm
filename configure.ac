@@ -98,7 +98,7 @@ AC_SEARCH_LIBS([sframe_encode], [sframe], [], [
   AC_MSG_WARN([unable to find function sframe_encode(), libbfd may require it])
 ])
 
-# Required by libbfd from binutils >= 2.39
+# Required by libbfd from binutils <= 2.39
 AC_CHECK_LIB([z], [deflate], [], [
   AC_MSG_WARN([library zlib not found, libbfd may require it])
 ])
@@ -115,9 +115,19 @@ AC_CHECK_LIB([bfd], [bfd_init], [], [
 ])
 AC_CHECK_HEADERS([bfd.h])
 
-#print_insn_i386
 AC_CHECK_LIB([opcodes], [print_i386_disassembler_options], [], [
   AC_MSG_FAILURE([library libopcodes not found])
+])
+
+# For libopcodes from binutils >= 2.40 there is a style support
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
+#  include <bfd.h>
+#  include <dis-asm.h>
+], [
+  init_disassemble_info(NULL, NULL, NULL, NULL);
+])], [
+  AC_DEFINE([HAVE_LIBOPCODES_DISASSEMBLER_STYLE], [1],
+    [Define to 1 if your libbfd init_disassemble_info() takes styled printf func as last argument.])
 ])
 
 # Arguments
