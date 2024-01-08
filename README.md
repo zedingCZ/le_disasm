@@ -1,16 +1,29 @@
 # le_disasm
 
-## Dependencies
-
-- binutils-dev package
-
 ## Overview
 
 libopcodes-based linear executable (MZ/LE/LX DOS EXEs) disassembler.
+
+Provide it with LE/LX file (may have MZ stub real-mode header at start),
+and it will dump compilable assembly for the whole code and data area.
+
 Outputs AT&amp;T syntax by default (switch can be made in code).
 
 This is a continuation of work on
 [Syndicate Wars Disassembler 1.0 by Vexillium group](http://swars.vexillium.org/files/swdisasm-1.0.tar.bz2).
+
+## Usage
+
+Example use with verification:
+
+```
+./le_disasm FATAL_beta.LE > output.sx 2> stderr.txt && gcc output.sx
+
+```
+
+## Dependencies
+
+- binutils-dev package
 
 ## Building
 
