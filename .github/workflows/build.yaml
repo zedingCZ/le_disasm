@@ -13,11 +13,11 @@ on:
         type: string
 
 jobs:
-  ubuntu-gcc-x86:
-    runs-on: ubuntu-20.04
-    name: "Linux Ubuntu, arch x86"
+  ubuntu-gcc-x86_64:
+    runs-on: ubuntu-22.04
+    name: "Linux Ubuntu, arch x86_64"
     container:
-      image: ubuntu:20.04
+      image: ubuntu:22.04
     env:
       DEBIAN_FRONTEND: noninteractive
       TZ: Etc/UTC
@@ -49,18 +49,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # add i386 dependencies
-          dpkg --add-architecture i386
-
           apt update
-          apt install -y \
-            gcc-multilib g++-multilib lib32z1
 
           apt install -y \
-            libc6-dev:i386 gettext:i386 \
-            libiberty-dev:i386 \
-            binutils-dev:i386 \
-            libzstd-dev:i386
+            libc6-dev gettext \
+            libiberty-dev \
+            binutils-dev \
+            libzstd-dev
 
           apt install -y \
             build-essential autoconf libtool make
@@ -70,11 +65,6 @@ jobs:
 
       - name: Configure
         id: configure-app
-        env:
-          CFLAGS: "-m32"
-          CXXFLAGS: "-m32"
-          LDFLAGS: "-m32"
-          PKG_CONFIG_PATH: "/usr/lib/i386-linux-gnu/pkgconfig"
         run: |
           mkdir -p release; cd release
           ../configure
@@ -83,7 +73,7 @@ jobs:
         if: failure() && steps.configure-app.outcome != 'success'
         uses: actions/upload-artifact@v3
         with:
-          name: configure-ubuntu-x86-logs
+          name: configure-ubuntu-x86_64-logs
           path: release/config.log
           retention-days: 10
 
@@ -98,7 +88,7 @@ jobs:
           # Get version marking from C header
           PKG_VERSION=$(sed -n 's/^#define[ ]\+PACKAGE_VERSION "\([^"]\+\)"$/\1/p' src/config.h | head -n 1 | tr '.' '_')
           make V=1 DESTDIR=$PWD/pkg install
-          echo "PKG_NAME=le_disasm-$PKG_VERSION-ubuntu-x86" >> $GITHUB_ENV
+          echo "PKG_NAME=le_disasm-$PKG_VERSION-ubuntu-x86_64" >> $GITHUB_ENV
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
