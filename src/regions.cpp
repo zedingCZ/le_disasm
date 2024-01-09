@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "regions.h"
-#include "util.h"
+#include "regions.hpp"
+#include "util.hpp"
 
 using std::ios;
 

@@ -21,8 +21,8 @@
 
 #include <istream>
 
-#include "le.h"
-#include "image.h"
+#include "le.hpp"
+#include "image.hpp"
 
 Image *create_image (std::istream *is, const LinearExecutable *lx);
 

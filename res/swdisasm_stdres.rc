@@ -19,7 +19,7 @@
 /******************************************************************************/
 
 #include <windows.h> // include for version info constants
-#include "swdisasm_ver.h" // define values for version info
+#include "le_disasm_ver.h" // define values for version info
 
 A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "ledisasm-icon128.ico"
 

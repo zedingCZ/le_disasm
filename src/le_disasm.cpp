@@ -26,12 +26,12 @@
 #include <map>
 #include <sstream>
 
-#include "disassembler.h"
-#include "instruction.h"
-#include "le.h"
-#include "le_image.h"
-#include "regions.h"
-#include "util.h"
+#include "disassembler.hpp"
+#include "instruction.hpp"
+#include "le.hpp"
+#include "le_image.hpp"
+#include "regions.hpp"
+#include "util.hpp"
 
 using std::ios;
 
@@ -1214,7 +1214,7 @@ main (int argc, char **argv)
   anal.set_label (Label (0x13c443, Label::JUMP));
   anal.set_label (Label (0x140096, Label::FUNCTION));
 
-#include "func_labels.cpp"
+#include "func_labels_swars.cpp"
 
   anal.run ();
   anal.remove_label (0x10000);

@@ -19,7 +19,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "le_image.h"
+#include "le_image.hpp"
 
 using std::cerr;
 using std::min;

@@ -19,8 +19,8 @@
 #include <iostream>
 #include <iomanip>
 
-#include "le.h"
-#include "util.h"
+#include "le.hpp"
+#include "util.hpp"
 
 using std::cerr;
 using std::ios;

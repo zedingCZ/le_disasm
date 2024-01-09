@@ -2,20 +2,21 @@ bin_PROGRAMS = swdisasm
 bindir = $(prefix)/usr/$(PACKAGE)
 
 swdisasm_SOURCES = \
-	disassembler.h \
+	disassembler.hpp \
 	disassembler.cpp \
-	instruction.h \
+	instruction.hpp \
 	instruction.cpp \
-	image.h \
+	image.hpp \
 	image.cpp \
-	le.h \
+	le.hpp \
 	le.cpp \
-	le_image.h \
+	le_image.hpp \
 	le_image.cpp \
-	regions.h \
+	regions.hpp \
 	regions.cpp \
-	swdisasm.cpp \
-	util.h \
+	le_disasm.cpp \
+	le_disasm_ver.h \
+	util.hpp \
 	util.cpp
 
 swdisasm_CPPFLAGS = 

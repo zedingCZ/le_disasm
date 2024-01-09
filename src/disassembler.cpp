@@ -23,9 +23,9 @@
 #include <sstream>
 #include <stdexcept>
 
-#include "disassembler.h"
-#include "instruction.h"
-#include "util.h"
+#include "disassembler.hpp"
+#include "instruction.hpp"
+#include "util.hpp"
 
 static std::string
 strip (std::string str)

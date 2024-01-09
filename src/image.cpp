@@ -18,7 +18,7 @@
  */
 #include <cstddef>
 
-#include "image.h"
+#include "image.hpp"
 
 Image::Object::Object (size_t index, uint32_t base_address, bool executable,
 		       const DataVector *data)
