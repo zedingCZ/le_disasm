@@ -24,6 +24,7 @@
 #include "analyser.hpp"
 #include "image.hpp"
 #include "instruction.hpp"
+#include "known_file.hpp"
 #include "label.hpp"
 #include "le.hpp"
 #include "le_image.hpp"
@@ -592,25 +593,12 @@ main (int argc, char **argv)
 
   anal = Analyser (le, image);
 
-  anal.insert_region (Region (0x0e581e,   0x76, Region::DATA));
-  anal.insert_region (Region (0x0e5af1,    0xf, Region::DATA));
-  anal.insert_region (Region (0x0e73e2,   0x4e, Region::DATA));
-  anal.insert_region (Region (0x0ea128,  0x202, Region::DATA));
-  anal.insert_region (Region (0x10ae19,   0x25, Region::DATA));
-  anal.insert_region (Region (0x10aeb5,   0x25, Region::DATA));
-  anal.insert_region (Region (0x117830,  0x200, Region::DATA));
-  anal.insert_region (Region (0x1233f3,   0x40, Region::DATA));
-  anal.insert_region (Region (0x12b3d0, 0x2450, Region::DATA));
-  anal.set_label (Label (0x03cd08, Label::JUMP));
-  anal.set_label (Label (0x03fdc8, Label::JUMP));
-  anal.set_label (Label (0x035644, Label::JUMP));
-  anal.set_label (Label (0x13c443, Label::JUMP));
-  anal.set_label (Label (0x140096, Label::FUNCTION));
-
-#include "func_labels_swars.cpp"
+  KnownFile::check(anal, le);
+  KnownFile::pre_anal_fixups_apply(anal);
 
   anal.run ();
-  anal.remove_label (0x10000);
+
+  KnownFile::post_anal_fixups_apply(anal);
 
   print_code (le, image, &anal);
 

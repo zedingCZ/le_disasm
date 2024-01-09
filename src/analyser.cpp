@@ -412,6 +412,7 @@ Analyser::Analyser (void)
 {
   this->le    = NULL;
   this->image = NULL;
+  this->known_type = KnownFile::NOT_KNOWN;
 }
 
 Analyser::Analyser (const Analyser &other)
@@ -424,6 +425,7 @@ Analyser::Analyser (LinearExecutable *le, Image *img)
   this->le    = le;
   this->image = img;
   this->add_initial_regions ();
+  this->known_type = KnownFile::NOT_KNOWN;
 }
 
 Analyser &
@@ -432,6 +434,7 @@ Analyser::operator= (const Analyser &other)
   this->le     = other.le;
   this->image  = other.image;
   this->disasm = other.disasm;
+  this->known_type = other.known_type;
   this->add_initial_regions ();
   return *this;
 }

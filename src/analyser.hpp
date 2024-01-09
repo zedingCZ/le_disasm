@@ -26,6 +26,7 @@
 #include <string>
 
 #include "disassembler.hpp"
+#include "known_file.hpp"
 
 class LinearExecutable;
 class Image;
@@ -45,6 +46,9 @@ protected:
   LinearExecutable    *le;
   Image               *image;
   Disassembler         disasm;
+  KnownFile::Type      known_type;
+
+  friend class KnownFile;
 
 protected:
   void  add_region (const Region &reg);
