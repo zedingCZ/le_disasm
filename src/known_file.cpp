@@ -56,9 +56,12 @@ KnownFile::check(Analyser &anal, LinearExecutable *le)
 void
 KnownFile::pre_anal_fixups_apply(Analyser &anal)
 {
+  const char *ident_str = NULL;
+
   switch (anal.known_type)
     {
     case KnownFile::KNOWN_SWARS_FINAL_MAIN:
+      ident_str = "Syndicate Wars Final `main.exe`";
       anal.insert_region (Region (0x0e581e,   0x76, Region::DATA));
       anal.insert_region (Region (0x0e5af1,    0xf, Region::DATA));
       anal.insert_region (Region (0x0e73e2,   0x4e, Region::DATA));
@@ -78,6 +81,8 @@ KnownFile::pre_anal_fixups_apply(Analyser &anal)
     case KnownFile::NOT_KNOWN:
       break;
     }
+  if (ident_str != NULL)
+    std::cerr << "Known file: " << ident_str << ".\n";
 }
 
 void
