@@ -23,77 +23,11 @@
 #include "analyser.hpp"
 #include "instruction.hpp"
 #include "image.hpp"
+#include "label.hpp"
 #include "le.hpp"
 #include "regions.hpp"
-#include "util.hpp"
 
 using std::ios;
-
-Label::Label (uint32_t address, Label::Type type,
-  const std::string &name)
-{
-  this->address = address;
-  this->name    = name;
-  this->type    = type;
-}
-
-Label::Label (void)
-{
-  this->address = 0;
-  this->name    = "";
-  this->type    = UNKNOWN;
-}
-
-Label::Label (const Label &other)
-{
-  *this = other;
-}
-
-uint32_t
-Label::get_address (void) const
-{
-  return this->address;
-}
-
-Label::Type
-Label::get_type (void) const
-{
-  return this->type;
-}
-
-std::string
-Label::get_name (void) const
-{
-  return this->name;
-}
-
-std::ostream &
-operator<< (std::ostream &os, const Label &label)
-{
-  PUSH_IOS_FLAGS (&os);
-
-  if (label.get_name ().empty ())
-    {
-      std::string prefix;
-
-      switch (label.get_type ())
-        {
-        case Label::FUNCTION: prefix = "func";    break;
-        case Label::JUMP:     prefix = "jump";    break;
-        case Label::DATA:     prefix = "data";    break;
-        case Label::VTABLE:   prefix = "vtable";  break;
-        default:              prefix = "unknown"; break;
-        }
-
-      os << prefix << "_" << std::hex << std::noshowbase
-         << label.get_address ();
-    }
-  else
-    os << label.get_name ();
-
-  return os;
-}
-
 
 void
 Analyser::add_region (const Region &reg)

@@ -24,6 +24,7 @@
 #include "analyser.hpp"
 #include "image.hpp"
 #include "instruction.hpp"
+#include "label.hpp"
 #include "le.hpp"
 #include "le_image.hpp"
 #include "regions.hpp"
@@ -579,16 +580,18 @@ main (int argc, char **argv)
     }
 
   ifs.open (argv[1], std::ios::binary);
-  if(!ifs.is_open()) {
-    std::cerr << "Error opening file: " << argv[1];
-    return 1;
-  }
+  if(!ifs.is_open())
+    {
+      std::cerr << "Error opening file: " << argv[1];
+      return 1;
+    }
 
   le = LinearExecutable::load (&ifs, argv[1]);
 
   image = create_image (&ifs, le);
 
   anal = Analyser (le, image);
+
   anal.insert_region (Region (0x0e581e,   0x76, Region::DATA));
   anal.insert_region (Region (0x0e5af1,    0xf, Region::DATA));
   anal.insert_region (Region (0x0e73e2,   0x4e, Region::DATA));

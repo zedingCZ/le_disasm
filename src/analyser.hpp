@@ -29,37 +29,8 @@
 
 class LinearExecutable;
 class Image;
+class Label;
 class Region;
-
-class Label
-{
-public:
-  enum Type
-  {
-    UNKNOWN,
-    JUMP,
-    FUNCTION,
-    VTABLE,
-    DATA
-  };
-
-protected:
-  uint32_t address;
-  std::string name;
-  Label::Type type;
-
-public:
-  Label (uint32_t address, Label::Type type = UNKNOWN,
-         const std::string &name = "");
-  Label (void);
-  Label (const Label &other);
-
-  uint32_t  get_address (void) const;
-  Label::Type  get_type (void) const;
-  std::string  get_name (void) const;
-};
-
-std::ostream &operator<< (std::ostream &os, const Label &label);
 
 class Analyser
 {

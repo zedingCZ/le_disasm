@@ -10,6 +10,8 @@ swdisasm_SOURCES = \
 	instruction.cpp \
 	image.hpp \
 	image.cpp \
+	label.hpp \
+	label.cpp \
 	le.hpp \
 	le.cpp \
 	le_image.hpp \
