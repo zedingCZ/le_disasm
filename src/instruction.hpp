@@ -50,4 +50,4 @@ public:
   size_t      get_size (void);
 };
 
-#endif
+#endif // LEDISASM_INSTRUCTION_H

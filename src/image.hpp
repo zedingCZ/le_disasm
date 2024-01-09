@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SWDISASM_IMAGE_H
-#define SWDISASM_IMAGE_H
+#ifndef LEDISASM_IMAGE_H
+#define LEDISASM_IMAGE_H
 
 #include <inttypes.h>
 #include <cstddef>
@@ -61,4 +61,4 @@ public:
   size_t get_object_count (void) const;
 };
 
-#endif
+#endif // LEDISASM_IMAGE_H

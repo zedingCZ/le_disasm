@@ -2,6 +2,8 @@ bin_PROGRAMS = swdisasm
 bindir = $(prefix)/usr/$(PACKAGE)
 
 swdisasm_SOURCES = \
+	analyser.hpp \
+	analyser.cpp \
 	disassembler.hpp \
 	disassembler.cpp \
 	instruction.hpp \

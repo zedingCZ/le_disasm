@@ -20,6 +20,8 @@
 #include <iostream>
 
 #include "le_image.hpp"
+#include "le.hpp"
+#include "image.hpp"
 
 using std::cerr;
 using std::min;

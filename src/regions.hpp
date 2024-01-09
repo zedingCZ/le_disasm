@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef LEDISASM_REGIONS_H
+#define LEDISASM_REGIONS_H
 
 #include <inttypes.h>
 #include <iostream>
@@ -56,3 +58,5 @@ public:
 
 std::ostream &operator<< (std::ostream &os, Region::Type type);
 std::ostream &operator<< (std::ostream &os, const Region &reg);
+
+#endif // LEDISASM_REGIONS_H

@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SWDISASM_UTIL_H
-#define SWDISASM_UTIL_H
+#ifndef LEDISASM_UTIL_H
+#define LEDISASM_UTIL_H
 
 #include <ostream>
 #include <map>
@@ -188,4 +188,4 @@ print_variable (std::ostream *os, size_t value_column,
   os->flags (flags);
 }
 
-#endif
+#endif // LEDISASM_UTIL_H

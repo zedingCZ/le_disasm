@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SWDISASM_DISASSEMBLER_H
-#define SWDISASM_DISASSEMBLER_H
+#ifndef LEDISASM_DISASSEMBLER_H
+#define LEDISASM_DISASSEMBLER_H
 
 #include <inttypes.h>
 #include <string>
@@ -53,4 +53,4 @@ public:
 		    Instruction *ret);
 };
 
-#endif
+#endif // LEDISASM_DISASSEMBLER_H

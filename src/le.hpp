@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SWDISASM_LE_H
-#define SWDISASM_LE_H
+#ifndef LEDISASM_LE_H
+#define LEDISASM_LE_H
 
 #include <inttypes.h>
 #include <map>
@@ -155,6 +155,10 @@ public:
 				 const std::string &name = "stream");
 };
 
+typedef LinearExecutable::FixupMap LEFM;
+typedef LinearExecutable::Header LEH;
+typedef LinearExecutable::ObjectHeader LEOH;
+
 std::ostream &operator<< (std::ostream &os,
 			  const LinearExecutable::Header &hdr);
 
@@ -167,4 +171,4 @@ std::ostream &operator<< (std::ostream &os,
 std::ostream &operator<< (std::ostream &os,
 			  const LinearExecutable::ObjectPageType &type);
 
-#endif
+#endif // LEDISASM_LE_H

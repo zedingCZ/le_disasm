@@ -16,8 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef SWDISASM_VER_H
-#define SWDISASM_VER_H
+#ifndef LEDISASM_VER_H
+#define LEDISASM_VER_H
 
 /* Version definitions */
 #include "config.h"
@@ -42,5 +42,5 @@
 #define PRODUCT_VERSION   VERSION
 #define DEFAULT_LOG_FILENAME INTERNAL_NAME".log"
 
-#endif // SWDISASM_VER_H
+#endif // LEDISASM_VER_H
 /******************************************************************************/

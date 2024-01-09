@@ -16,14 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SWDISASM_LE_IMAGE_H
-#define SWDISASM_LE_IMAGE_H
+#ifndef LEDISASM_LE_IMAGE_H
+#define LEDISASM_LE_IMAGE_H
 
 #include <istream>
 
-#include "le.hpp"
-#include "image.hpp"
+class Image;
+class LinearExecutable;
 
 Image *create_image (std::istream *is, const LinearExecutable *lx);
 
-#endif
+#endif // LEDISASM_LE_IMAGE_H
