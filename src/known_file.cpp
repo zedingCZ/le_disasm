@@ -22,10 +22,35 @@
 #include "label.hpp"
 #include "regions.hpp"
 
+#include "le.hpp"
+
 void
 KnownFile::check(Analyser &anal, LinearExecutable *le)
 {
-  anal.known_type = KnownFile::KNOWN_SWARS_FINAL_MAIN;
+  const LinearExecutable::Header *header = le->get_header();
+
+  anal.known_type = KnownFile::NOT_KNOWN;
+
+  if (header->eip_offset == 0xd581c &&
+      header->esp_offset == 0x9ffe0 &&
+      header->last_page_size == 0x34a &&
+      header->fixup_section_size == 0x5d9ca &&
+      header->loader_section_size == 0x5df3f &&
+      header->object_count == 4)
+    {
+      if (le->get_object_header(0)->virtual_size == 0x12d030 &&
+          le->get_object_header(0)->base_address == 0x10000 &&
+          le->get_object_header(1)->virtual_size == 0x96 &&
+          le->get_object_header(1)->base_address == 0x140000 &&
+          le->get_object_header(2)->virtual_size == 0x9ffe0 &&
+          le->get_object_header(2)->base_address == 0x150000 &&
+          le->get_object_header(3)->virtual_size == 0x1b58 &&
+          le->get_object_header(3)->base_address == 0x1f0000)
+        {
+          anal.known_type = KnownFile::KNOWN_SWARS_FINAL_MAIN;
+          return;
+        }
+    }
 }
 
 void
