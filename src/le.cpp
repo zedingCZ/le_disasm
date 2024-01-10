@@ -59,6 +59,7 @@ protected:
   vector<uint32_t> fixup_record_offsets;
 
 protected:
+  bool load_le_header_offset(void);
   bool load_header (void);
   bool load_object_table (void);
   bool load_object_header (ObjectHeader *hdr);
@@ -154,7 +155,7 @@ err:
 }
 
 bool
-LinearExecutable::Loader::load_header (void)
+LinearExecutable::Loader::load_le_header_offset(void)
 {
   char id[2];
   uint8_t byte;
@@ -165,6 +166,13 @@ LinearExecutable::Loader::load_header (void)
   is->read (id, 2);
   if (!is->good ())
     return false;
+
+  // LE/LX header without MZ stub at start
+  if ((string (id, 2) == "LE") || (string (id, 2) == "LX"))
+    {
+      this->header_offset = 0;
+      return true;
+    }
 
   if (string (id, 2) != "MZ")
     {
@@ -186,6 +194,25 @@ LinearExecutable::Loader::load_header (void)
   if (!read_le (is, &this->header_offset))
     return false;
 
+  return true;
+}
+
+bool
+LinearExecutable::Loader::load_header (void)
+{
+  char id[2];
+  uint8_t byte;
+  istream *is = this->is;
+  LinearExecutable *le = this->le;
+
+  is->seekg (0);
+  is->read (id, 2);
+  if (!is->good ())
+    return false;
+
+  if (!this->load_le_header_offset())
+    return false;
+
 #ifdef ENABLE_DEBUG
   print_variable (&cerr, 40, "header_offset", this->header_offset);
   cerr << "\n";
@@ -196,9 +223,9 @@ LinearExecutable::Loader::load_header (void)
   if (!is->good ())
     return false;
 
-  if (string (id, 2) != "LE")
+  if ((string (id, 2) != "LE") && (string (id, 2) != "LX"))
     {
-      cerr << "Invalid LE signature\n";
+      cerr << "Invalid LE signature at offset 0x" << std::hex << this->header_offset << std::endl;
       return false;
     }
 

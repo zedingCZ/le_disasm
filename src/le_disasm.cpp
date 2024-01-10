@@ -579,27 +579,33 @@ main (int argc, char **argv)
       return 1;
     }
 
-  ifs.open (argv[1], std::ios::binary);
-  if(!ifs.is_open())
-    {
-      std::cerr << "Error opening file: " << argv[1];
-      return 1;
-    }
+  try {
 
-  le = LinearExecutable::load (&ifs, argv[1]);
+    ifs.open (argv[1], std::ios::binary);
+    if(!ifs.is_open())
+      {
+        std::cerr << "Error opening file: " << argv[1];
+        return 1;
+      }
 
-  image = create_image (&ifs, le);
+    le = LinearExecutable::load (&ifs, argv[1]);
 
-  anal = Analyser (le, image);
+    image = create_image (&ifs, le);
 
-  KnownFile::check(anal, le);
-  KnownFile::pre_anal_fixups_apply(anal);
+    anal = Analyser (le, image);
 
-  anal.run ();
+    KnownFile::check(anal, le);
+    KnownFile::pre_anal_fixups_apply(anal);
 
-  KnownFile::post_anal_fixups_apply(anal);
+    anal.run ();
 
-  print_code (le, image, &anal);
+    KnownFile::post_anal_fixups_apply(anal);
+
+    print_code (le, image, &anal);
+
+  } catch (const std::exception &e) {
+    std::cerr << std::dec << e.what() << std::endl;
+  }
 
   delete image;
   delete le;
