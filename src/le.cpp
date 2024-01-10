@@ -410,6 +410,7 @@ LinearExecutable::Loader::load_fixup_record_offsets (void)
   size_t n;
   istream *is = this->is;
 
+  // The additional +1 record indicates the end of the Fixup Record Table
   this->fixup_record_offsets.resize (this->le->header.page_count + 1);
   is->seekg (this->header_offset
              + this->le->header.fixup_page_table_offset);
@@ -444,6 +445,10 @@ LinearExecutable::Loader::load_fixup_record_pages (size_t oi)
   for (n = obj->first_page_index;
        n < obj->first_page_index + obj->page_count; n++)
     {
+#ifdef DEBUG
+      // print object indices starting from 1 as defined by LE format
+      std::cerr << "Loading fixups for object " << oi + 1 << " page " << n << "." << std::endl;
+#endif
       offset = this->header_offset
                + this->le->header.fixup_record_table_offset
                + this->fixup_record_offsets[n];
@@ -457,6 +462,10 @@ LinearExecutable::Loader::load_fixup_record_pages (size_t oi)
         {
           if (end - offset < 2)
             return false;
+#ifdef DEBUG
+          std::cerr << "Loading fixup 0x" << std::hex << offset << " at page " << std::dec << n <<
+              "/" << obj->page_count << ", offset 0x" << std::hex << offset << ": ";
+#endif
 
           read_u8 (is, &addr_flags);
           read_u8 (is, &reloc_flags);
@@ -481,6 +490,11 @@ LinearExecutable::Loader::load_fixup_record_pages (size_t oi)
             {
               cerr << "Unsupported reloc type " << std::hex << std::showbase
                    << (reloc_flags & 0x03) << ".\n";
+            }
+
+          if ((reloc_flags & 0x40) != 0) /* 16-bit Object Number/Module Ordinal Flag */
+            {
+              cerr << "16-bit object or module ordinal numbers are not supported.\n";
             }
 
           offset += 2;
@@ -528,6 +542,9 @@ LinearExecutable::Loader::load_fixup_record_pages (size_t oi)
           fixup.address = this->le->objects[obj_index].base_address
                           + dst_off_32;
 
+#ifdef DEBUG
+          std::cerr << "0x" << fixup.offset << " -> 0x" << fixup.address << std::endl;
+#endif
           this->le->fixups[oi][fixup.offset] = fixup;
           this->le->fixup_addresses.insert (fixup.address);
         }
