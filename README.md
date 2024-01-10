@@ -11,6 +11,9 @@ Outputs AT&amp;T syntax by default (switch can be made in code).
 
 This is a continuation of work on
 [Syndicate Wars Disassembler 1.0 by Vexillium group](http://swars.vexillium.org/files/swdisasm-1.0.tar.bz2).
+It took a different approach to coding than [the fork by Klei1984](https://github.com/klei1984/le_disasm),
+and sources diverged very early on. If you're searching for a best solution for your case,
+you may want to check both forks.
 
 ## Usage
 
