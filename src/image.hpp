@@ -40,7 +40,7 @@ public:
 
   public:
     Object (size_t index, uint32_t base_address, bool executable,
-	    const DataVector *data = NULL);
+            const DataVector *data = NULL);
     Object (const Object &other);
     size_t get_index (void) const;
     const DataVector *get_data (void) const;

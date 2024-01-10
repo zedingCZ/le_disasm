@@ -49,7 +49,7 @@ lower (const std::string &str)
 
   out.reserve (str.length ());
   std::transform (str.begin (), str.end (), std::back_inserter (out),
-		  tolower);
+                  tolower);
 
   return out;
 }
@@ -109,7 +109,7 @@ Disassembler::disassemble (uint32_t addr, const std::string &data)
 
 void
 Disassembler::disassemble (uint32_t addr, const void *data, size_t length,
-			   Instruction *inst)
+                           Instruction *inst)
 {
   DisassemblerContext context;
   int size;
@@ -141,21 +141,21 @@ Disassembler::disassemble (uint32_t addr, const void *data, size_t length,
   if (data0 == 0x2e)
     {
       if (size > 1)
-	data0 = ((uint8_t *) data)[1];
+        data0 = ((uint8_t *) data)[1];
 
       if (size > 2)
-	data1 = ((uint8_t *) data)[2];
+        data1 = ((uint8_t *) data)[2];
     }
   else
     {
       if (size > 1)
-	data1 = ((uint8_t *) data)[1];
+        data1 = ((uint8_t *) data)[1];
     }
 
     if (data0 == 0x0f)
       {
-	if (data1 >= 0x80 and data1 < 0x90) /* j.. near */
-	  inst->type = Instruction::COND_JUMP;
+        if (data1 >= 0x80 and data1 < 0x90) /* j.. near */
+          inst->type = Instruction::COND_JUMP;
       }
     else if (data0 == 0xe8) /* call */
       inst->type = Instruction::CALL;
@@ -183,28 +183,28 @@ Disassembler::disassemble (uint32_t addr, const void *data, size_t length,
       inst->type = Instruction::RET;
     else if (data0 == 0xff) /* jmp near or call near indirect*/
       {
-	have_target = false;
+        have_target = false;
 
-	/* whatever... */
-	if (inst->string.find ("jmp") != std::string::npos)
-	  inst->type = Instruction::JUMP;
-	else
-	  inst->type = Instruction::CALL;
+        /* whatever... */
+        if (inst->string.find ("jmp") != std::string::npos)
+          inst->type = Instruction::JUMP;
+        else
+          inst->type = Instruction::CALL;
       }
 
   if (have_target
       and (inst->type == Instruction::COND_JUMP
-	   or inst->type == Instruction::JUMP
-	   or inst->type == Instruction::CALL))
+           or inst->type == Instruction::JUMP
+           or inst->type == Instruction::CALL))
     {
       if (size < 5)
-	inst->target =
-	  addr + size
-	  + read_s8 ((uint8_t *) data + size - sizeof (int8_t));
+        inst->target =
+          addr + size
+          + read_s8 ((uint8_t *) data + size - sizeof (int8_t));
       else
-	inst->target =
-	  addr + size
-	  + read_le<int32_t> ((uint8_t *) data + size - sizeof (int32_t));
+        inst->target =
+          addr + size
+          + read_le<int32_t> ((uint8_t *) data + size - sizeof (int32_t));
     }
 }
 
@@ -231,7 +231,7 @@ Disassembler::receive_instruction_text (void *context, const char *fmt, ...)
 #ifdef HAVE_LIBOPCODES_DISASSEMBLER_STYLE
 int
 Disassembler::receive_instruction_styled_text (void *context,
-		enum disassembler_style style, const char *fmt, ...)
+                enum disassembler_style style, const char *fmt, ...)
 {
   va_list list;
   DisassemblerContext *ctx;

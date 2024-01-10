@@ -19,7 +19,7 @@
 #include "image.hpp"
 
 Image::Object::Object (size_t index, uint32_t base_address, bool executable,
-		       const DataVector *data)
+                       const DataVector *data)
 {
   if (data != NULL)
     this->data = *data;
@@ -99,8 +99,8 @@ Image::get_object_at_address (uint32_t address) const
       obj = &this->objects[n];
 
       if (obj->base_address <= address
-	  and address < obj->base_address + obj->data.size ())
-	return obj;
+          and address < obj->base_address + obj->data.size ())
+        return obj;
     }
 
   return NULL;

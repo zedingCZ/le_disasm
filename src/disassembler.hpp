@@ -37,7 +37,7 @@ protected:
   static int receive_instruction_text (void *context, const char *fmt, ...);
 # ifdef HAVE_LIBOPCODES_DISASSEMBLER_STYLE
   static int receive_instruction_styled_text (void *context,
-		enum disassembler_style style, const char *fmt, ...);
+                enum disassembler_style style, const char *fmt, ...);
 # endif
   static void print_address (bfd_vma address, disassemble_info *info);
   
@@ -48,7 +48,7 @@ public:
   Disassembler &operator= (const Disassembler &other);
   Instruction disassemble (uint32_t addr, const std::string &data);
   void disassemble (uint32_t addr, const void *data, size_t length,
-		    Instruction *ret);
+                    Instruction *ret);
 };
 
 #endif // LEDISASM_DISASSEMBLER_H

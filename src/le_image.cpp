@@ -39,7 +39,7 @@ apply_fixups (const LinearExecutable *lx, size_t oi, Image::DataVector *data)
       fixup = itr->second;
 
       if (fixup.offset + 4 >= data->size ())
-	return false;
+        return false;
 
       ptr = &data->front () + fixup.offset;
       write_le<uint32_t> (ptr, fixup.address);
@@ -74,37 +74,37 @@ create_image (std::istream *is, const LinearExecutable *lx)
       
       data_off = 0;
       page_end = min (ohdr->first_page_index + ohdr->page_count,
-		      hdr->page_count);
+                      hdr->page_count);
 
       for (page_idx = ohdr->first_page_index; page_idx < page_end; page_idx++)
-	{
-	  if (page_idx + 1 < hdr->page_count)
-	    size = min<size_t> (ohdr->virtual_size - data_off,
-				hdr->page_size);
-	  else
-	    size = min<size_t> (ohdr->virtual_size - data_off,
-				hdr->last_page_size);
+        {
+          if (page_idx + 1 < hdr->page_count)
+            size = min<size_t> (ohdr->virtual_size - data_off,
+                                hdr->page_size);
+          else
+            size = min<size_t> (ohdr->virtual_size - data_off,
+                                hdr->last_page_size);
 
           is->seekg (lx->get_page_file_offset (page_idx));
-	  is->read ((char *) &data.front () + data_off, size);
-	  if (!is->good ())
-	    {
-	      cerr << "Unexpected read error.\n";
-	      return NULL;
-	    }
+          is->read ((char *) &data.front () + data_off, size);
+          if (!is->good ())
+            {
+              cerr << "Unexpected read error.\n";
+              return NULL;
+            }
 
-	  data_off += size;
-	}
+          data_off += size;
+        }
 
       if (!apply_fixups (lx, oi, &data))
-	{
-	  cerr << "Failed to apply fixups.\n";
-	  return NULL;
-	}
+        {
+          cerr << "Failed to apply fixups.\n";
+          return NULL;
+        }
 
       objects.push_back (Image::Object (oi, ohdr->base_address,
-					(ohdr->flags & OH::EXECUTABLE) != 0,
-					&data));
+                                        (ohdr->flags & OH::EXECUTABLE) != 0,
+                                        &data));
     }
 
   return new Image (&objects);

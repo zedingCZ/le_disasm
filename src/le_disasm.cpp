@@ -105,7 +105,7 @@ print_label (const Label *lab)
 
 static std::string
 replace_addresses_with_labels (const std::string &str, Image *img,
-			       LinearExecutable *le, Analyser *anal)
+                               LinearExecutable *le, Analyser *anal)
 {
   std::ostringstream oss;
   const Label *lab;
@@ -125,31 +125,31 @@ replace_addresses_with_labels (const std::string &str, Image *img,
       oss << str.substr (start, n - start);
 
       if (n + 2 >= str.length ())
-	break;
+        break;
 
       n += 2;
       start = n;
 
       while (n < str.length () and isxdigit (str[n]))
-	n++;
+        n++;
 
       addr_str = str.substr (start, n - start);
       addr = strtol (addr_str.c_str (), NULL, 16);
       lab = anal->get_label (addr);
       if (lab != NULL)
-	oss << *lab;
+        oss << *lab;
       else
-	{
-	  oss << "0x" << addr_str;
+        {
+          oss << "0x" << addr_str;
 
-	  if (img->get_object_at_address (addr) != NULL
-	      and le->get_fixup_addresses ()->find (addr)
-		  != le->get_fixup_addresses ()->end ())
-	    {
-	      comment = " /* Warning: address points to a valid object/reloc, "
-		        "but no label found */";
-	    }
-	}
+          if (img->get_object_at_address (addr) != NULL
+              and le->get_fixup_addresses ()->find (addr)
+                  != le->get_fixup_addresses ()->end ())
+            {
+              comment = " /* Warning: address points to a valid object/reloc, "
+                        "but no label found */";
+            }
+        }
 
       start = n;
       n = str.find ("0x", start);
@@ -167,7 +167,7 @@ replace_addresses_with_labels (const std::string &str, Image *img,
 
 static void
 print_instruction (Instruction *inst, Image *img, LinearExecutable *le,
-		   Analyser *anal)
+                   Analyser *anal)
 {
   std::string str;
   std::string::size_type n;
@@ -197,7 +197,7 @@ print_instruction (Instruction *inst, Image *img, LinearExecutable *le,
 
 static bool
 data_is_address (const Image::Object *obj, uint32_t addr, size_t len,
-		 LinearExecutable *le)
+                 LinearExecutable *le)
 {
   uint32_t offset;
   const LEFM *fups;
@@ -225,7 +225,7 @@ data_is_zeros (const Image::Object *obj, uint32_t addr, size_t len, size_t *rlen
   for (x = 0; x < len; x++)
     {
       if (data[x] != 0)
-	break;
+        break;
     }
 
   if (x < 4)
@@ -237,7 +237,7 @@ data_is_zeros (const Image::Object *obj, uint32_t addr, size_t len, size_t *rlen
 
 static bool
 data_is_string (const Image::Object *obj, uint32_t addr, size_t len, size_t *rlen,
-		bool *zero_terminated)
+                bool *zero_terminated)
 {
   size_t x;
   const uint8_t *data;
@@ -247,8 +247,8 @@ data_is_string (const Image::Object *obj, uint32_t addr, size_t len, size_t *rle
   for (x = 0; x < len; x++)
     {
       if ((data[x] < 0x20 or data[x] >= 0x7f)
-	  and not (data[x] == '\t' or data[x] == '\n' or data[x] == '\r'))
-	break;
+          and not (data[x] == '\t' or data[x] == '\n' or data[x] == '\r'))
+        break;
     }
 
   if (x < 4)
@@ -274,23 +274,23 @@ print_escaped_string (const uint8_t *data, size_t len)
   for (n = 0; n < len; n++)
     {
       if (data[n] == '\t')
-	std::cout << "\\t";
+        std::cout << "\\t";
       else if (data[n] == '\r')
-	std::cout << "\\r";
+        std::cout << "\\r";
       else if (data[n] == '\n')
-	std::cout << "\\n";
+        std::cout << "\\n";
       else if (data[n] == '\\')
-	std::cout << "\\\\";
+        std::cout << "\\\\";
       else if (data[n] == '"')
-	std::cout << "\\\"";
+        std::cout << "\\\"";
       else
-	std::cout << (char) data[n];
+        std::cout << (char) data[n];
     }
 }
 
 static void
 print_region (const Region *reg, const Image::Object *obj, LinearExecutable *le,
-	      Image *img, Analyser *anal)
+              Image *img, Analyser *anal)
 {
   const Label *label;
   size_t addr;
@@ -310,17 +310,17 @@ print_region (const Region *reg, const Image::Object *obj, LinearExecutable *le,
     {
     case Region::CODE:
       while (addr < reg->get_end_address ())
-	{
-	  label = anal->get_label (addr);
-	  if (label != NULL)
-	    print_label (label);
+        {
+          label = anal->get_label (addr);
+          if (label != NULL)
+            print_label (label);
 
-	  disasm.disassemble (addr, obj->get_data_at (addr),
-			      reg->get_end_address () - addr, &inst);
-	  print_instruction (&inst, img, le, anal);
+          disasm.disassemble (addr, obj->get_data_at (addr),
+                              reg->get_end_address () - addr, &inst);
+          print_instruction (&inst, img, le, anal);
 
-	  addr += inst.get_size ();
-	}
+          addr += inst.get_size ();
+        }
       break;
 
     case Region::DATA:
@@ -336,118 +336,118 @@ print_region (const Region *reg, const Image::Object *obj, LinearExecutable *le,
       itr = fups->begin ();
 
       while (addr < reg->get_end_address ())
-	{
-	  label = anal->get_label (addr);
-	  if (label != NULL)
-	    {
-	      if (bytes_in_line > 0)
-		{
-		  std::cout << "\"\n";
-		  bytes_in_line = 0;
-		}
+        {
+          label = anal->get_label (addr);
+          if (label != NULL)
+            {
+              if (bytes_in_line > 0)
+                {
+                  std::cout << "\"\n";
+                  bytes_in_line = 0;
+                }
 
-	      print_label (label);
-	    }
+              print_label (label);
+            }
 
-	  len = reg->get_end_address () - addr;
+          len = reg->get_end_address () - addr;
 
-	  label = anal->get_next_label (addr);
-	  if (label != NULL)
-	    len = std::min (len, label->get_address () - addr);
+          label = anal->get_next_label (addr);
+          if (label != NULL)
+            len = std::min (len, label->get_address () - addr);
 
-	  while (itr != fups->end ()
-		 and itr->first <= addr - obj->get_base_address ())
-	    ++itr;
+          while (itr != fups->end ()
+                 and itr->first <= addr - obj->get_base_address ())
+            ++itr;
 
-	  if (itr != fups->end ())
-	    len = std::min<size_t> (len,
-				    itr->first
-				    - (addr - obj->get_base_address ()));
+          if (itr != fups->end ())
+            len = std::min<size_t> (len,
+                                    itr->first
+                                    - (addr - obj->get_base_address ()));
 
-	  while (len > 0)
-	    {
-	      if (data_is_address (obj, addr, len, le))
-		{
-		  const Label *dlabel;
-		  uint32_t value;
+          while (len > 0)
+            {
+              if (data_is_address (obj, addr, len, le))
+                {
+                  const Label *dlabel;
+                  uint32_t value;
 
-		  if (bytes_in_line > 0)
-		    {
-		      std::cout << "\"\n";
-		      bytes_in_line = 0;
-		    }
+                  if (bytes_in_line > 0)
+                    {
+                      std::cout << "\"\n";
+                      bytes_in_line = 0;
+                    }
 
-		  value = read_le<uint32_t> (obj->get_data_at (addr));
-		  dlabel = anal->get_label (value);
-		  assert (dlabel != NULL);
-		  std::cout << "\t\t.long   " << *dlabel << "\n";
+                  value = read_le<uint32_t> (obj->get_data_at (addr));
+                  dlabel = anal->get_label (value);
+                  assert (dlabel != NULL);
+                  std::cout << "\t\t.long   " << *dlabel << "\n";
 
-		  addr += 4;
-		  len -= 4;
-		}
-	      else if (data_is_zeros (obj, addr, len, &size))
-		{
-		  PUSH_IOS_FLAGS (&std::cout);
-		  std::cout.setf (ios::hex, ios::basefield);
-		  std::cout.setf (ios::showbase);
+                  addr += 4;
+                  len -= 4;
+                }
+              else if (data_is_zeros (obj, addr, len, &size))
+                {
+                  PUSH_IOS_FLAGS (&std::cout);
+                  std::cout.setf (ios::hex, ios::basefield);
+                  std::cout.setf (ios::showbase);
 
-		  if (bytes_in_line > 0)
-		    {
-		      std::cout << "\"\n";
-		      bytes_in_line = 0;
-		    }
+                  if (bytes_in_line > 0)
+                    {
+                      std::cout << "\"\n";
+                      bytes_in_line = 0;
+                    }
 
-		  std::cout << "\t\t.fill   " << size << "\n";
-		  addr += size;
-		  len -= size;
-		}
-	      else if (data_is_string (obj, addr, len, &size, &zt))
-		{
-		  if (bytes_in_line > 0)
-		    {
-		      std::cout << "\"\n";
-		      bytes_in_line = 0;
-		    }
+                  std::cout << "\t\t.fill   " << size << "\n";
+                  addr += size;
+                  len -= size;
+                }
+              else if (data_is_string (obj, addr, len, &size, &zt))
+                {
+                  if (bytes_in_line > 0)
+                    {
+                      std::cout << "\"\n";
+                      bytes_in_line = 0;
+                    }
 
-		  if (zt)
-		    std::cout << "\t\t.string \"";
-		  else
-		    std::cout << "\t\t.ascii   \"";
+                  if (zt)
+                    std::cout << "\t\t.string \"";
+                  else
+                    std::cout << "\t\t.ascii   \"";
 
-		  print_escaped_string (obj->get_data_at (addr), size - zt);
+                  print_escaped_string (obj->get_data_at (addr), size - zt);
 
-		  std::cout << "\"\n";
+                  std::cout << "\"\n";
 
-		  addr += size;
-		  len -= size;
-		}
-	      else
-		{
-		  char buffer[8];
+                  addr += size;
+                  len -= size;
+                }
+              else
+                {
+                  char buffer[8];
 
-		  if (bytes_in_line == 0)
-		    std::cout << "\t\t.ascii  \"";
+                  if (bytes_in_line == 0)
+                    std::cout << "\t\t.ascii  \"";
 
-		  snprintf (buffer, sizeof (buffer), "\\x%02x",
-			    *obj->get_data_at (addr));
-		  std::cout << buffer;
+                  snprintf (buffer, sizeof (buffer), "\\x%02x",
+                            *obj->get_data_at (addr));
+                  std::cout << buffer;
 
-		  bytes_in_line += 1;
-		  
-		  if (bytes_in_line == 8)
-		    {
-		      std::cout << "\"\n";
-		      bytes_in_line = 0;
-		    }
+                  bytes_in_line += 1;
+                  
+                  if (bytes_in_line == 8)
+                    {
+                      std::cout << "\"\n";
+                      bytes_in_line = 0;
+                    }
 
-		  addr++;
-		  len--;
-		}
-	    }
-	}
+                  addr++;
+                  len--;
+                }
+            }
+        }
 
       if (bytes_in_line > 0)
-	std::cout << "\"\n";
+        std::cout << "\"\n";
 
       break;
 
@@ -461,26 +461,26 @@ print_region (const Region *reg, const Image::Object *obj, LinearExecutable *le,
       next_label = anal->get_next_label (addr);
 
       while (addr < reg->get_end_address ())
-	{
-	  if (next_label != NULL and addr == next_label->get_address ())
-	    {
-	      print_label (next_label);
-	      next_label = anal->get_next_label (addr);
-	    }
+        {
+          if (next_label != NULL and addr == next_label->get_address ())
+            {
+              print_label (next_label);
+              next_label = anal->get_next_label (addr);
+            }
 
-	  func_addr = read_le<uint32_t> (obj->get_data_at (addr));
+          func_addr = read_le<uint32_t> (obj->get_data_at (addr));
 
-	  if (func_addr != 0)
-	    {
-	      label = anal->get_label (func_addr);
-	      assert (label != NULL);
-	      std::cout << "\t\t.long   " << *label << "\n";
-	    }
-	  else
-	    std::cout << "\t\t.long   0\n";
+          if (func_addr != 0)
+            {
+              label = anal->get_label (func_addr);
+              assert (label != NULL);
+              std::cout << "\t\t.long   " << *label << "\n";
+            }
+          else
+            std::cout << "\t\t.long   0\n";
 
-	  addr += 4;
-	}
+          addr += 4;
+        }
       break;
 
     default:
@@ -516,36 +516,36 @@ print_code (LinearExecutable *le, Image *img, Analyser *anal)
       obj = img->get_object_at_address (reg->get_address ());
 
       if (reg->get_type () == Region::DATA)
-	{
-	  if (sec != DATA)
-	    {
-	      std::cout << ".data\n";
-	      sec = DATA;
-	    }
-	}
+        {
+          if (sec != DATA)
+            {
+              std::cout << ".data\n";
+              sec = DATA;
+            }
+        }
       else
-	{
-	  if (sec != TEXT)
-	    {
-	      std::cout << ".text\n";
-	      sec = TEXT;
-	    }
-	}
+        {
+          if (sec != TEXT)
+            {
+              std::cout << ".text\n";
+              sec = TEXT;
+            }
+        }
 
       print_region (reg, obj, le, img, anal);
 
       if (prev != NULL)
-	assert (prev->get_end_address () <= reg->get_address ());
+        assert (prev->get_end_address () <= reg->get_address ());
 
       next = anal->get_next_region (reg);
       if (next == NULL or next->get_address () > reg->get_end_address ())
-	{
-	  const Label *l;
+        {
+          const Label *l;
 
-	  l = anal->get_label (reg->get_end_address ());
-	  if (l != NULL)
-	    print_label (l);
-	}
+          l = anal->get_label (reg->get_end_address ());
+          if (l != NULL)
+            print_label (l);
+        }
 
       prev = reg;
     }

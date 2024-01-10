@@ -111,8 +111,8 @@ LinearExecutable::Loader::load (istream *is, const std::string &name)
     cerr << "\n";
     for (size_t n = 0; n < this->le->objects.size (); n++)
       {
-	cerr << "Object " << std::hex << std::showbase << (n + 1) << ":\n";
-	cerr << this->le->objects[n];
+        cerr << "Object " << std::hex << std::showbase << (n + 1) << ":\n";
+        cerr << this->le->objects[n];
       }
   }
 
@@ -285,12 +285,12 @@ LinearExecutable::Loader::load_object_table (void)
 
   this->le->objects.resize (this->le->header.object_count);
   this->is->seekg (this->header_offset
-		  + this->le->header.object_table_offset);
+                  + this->le->header.object_table_offset);
 
   for (n = 0; n < this->le->header.object_count; n++)
     {
       if (!this->load_object_header (&this->le->objects[n]))
-	return false;
+        return false;
     }
 
   return true;
@@ -303,12 +303,12 @@ LinearExecutable::Loader::load_object_page_table (void)
 
   this->le->object_pages.resize (this->le->header.page_count);
   this->is->seekg (this->header_offset
-		   + this->le->header.object_page_table_offset);
+                   + this->le->header.object_page_table_offset);
 
   for (n = 0; n < this->le->header.page_count; n++)
     {
       if (!this->load_object_page_header (&this->le->object_pages[n]))
-	return false;
+        return false;
     }
 
   return true;
@@ -357,12 +357,12 @@ LinearExecutable::Loader::load_fixup_record_offsets (void)
 
   this->fixup_record_offsets.resize (this->le->header.page_count + 1);
   is->seekg (this->header_offset
-	     + this->le->header.fixup_page_table_offset);
+             + this->le->header.fixup_page_table_offset);
 
   for (n = 0; n <= this->le->header.page_count; n++)
     {
       if (!read_le (is, &this->fixup_record_offsets[n]))
-	return false;
+        return false;
     }
 
   return true;
@@ -392,96 +392,96 @@ LinearExecutable::Loader::load_fixup_record_table (void)
       obj = &this->le->objects[oi];
 
       for (n = obj->first_page_index;
-	   n < obj->first_page_index + obj->page_count; n++)
-	{
-	  offset = this->header_offset
-		   + this->le->header.fixup_record_table_offset
-		   + this->fixup_record_offsets[n];
-	  end    = offset
-		   + this->fixup_record_offsets[n + 1]
-		   - this->fixup_record_offsets[n];
+           n < obj->first_page_index + obj->page_count; n++)
+        {
+          offset = this->header_offset
+                   + this->le->header.fixup_record_table_offset
+                   + this->fixup_record_offsets[n];
+          end    = offset
+                   + this->fixup_record_offsets[n + 1]
+                   - this->fixup_record_offsets[n];
 
-	  is->seekg (offset);
+          is->seekg (offset);
 
-	  while (offset < end)
-	    {
-	      if (end - offset < 2)
-		return false;
+          while (offset < end)
+            {
+              if (end - offset < 2)
+                return false;
 
-	      read_u8 (is, &addr_flags);
-	      read_u8 (is, &reloc_flags);
+              read_u8 (is, &addr_flags);
+              read_u8 (is, &reloc_flags);
 
-	      if (!is->good ())
-		return false;
+              if (!is->good ())
+                return false;
 
-	      if ((addr_flags & 0x20) != 0)
-		{
-		  cerr << "Fixup lists not supported.\n";
-		  return false;
-		}
+              if ((addr_flags & 0x20) != 0)
+                {
+                  cerr << "Fixup lists not supported.\n";
+                  return false;
+                }
 
-	      if ((addr_flags & 0xf) != 0x7) /* 32-bit offset */
-		{
-		  cerr << "Unsupported fixup type " << std::hex << std::showbase
-		       << (addr_flags & 0xf) << ".\n";
-		  return false;
-		}
+              if ((addr_flags & 0xf) != 0x7) /* 32-bit offset */
+                {
+                  cerr << "Unsupported fixup type " << std::hex << std::showbase
+                       << (addr_flags & 0xf) << ".\n";
+                  return false;
+                }
 
-	      if ((reloc_flags & 0x3) != 0x0) /* internal ref */
-		{
-		  cerr << "Unsupported reloc type " << std::hex << std::showbase
-		       << (reloc_flags & 0x03) << ".\n";
-		}
+              if ((reloc_flags & 0x3) != 0x0) /* internal ref */
+                {
+                  cerr << "Unsupported reloc type " << std::hex << std::showbase
+                       << (reloc_flags & 0x03) << ".\n";
+                }
 
-	      offset += 2;
+              offset += 2;
 
-	      if (end - offset < 3)
-		return false;
+              if (end - offset < 3)
+                return false;
 
-	      read_le<int16_t> (is, &src_off);
-	      read_u8 (is, &obj_index);
+              read_le<int16_t> (is, &src_off);
+              read_u8 (is, &obj_index);
 
-	      if (!is->good ())
-		return false;
+              if (!is->good ())
+                return false;
 
-	      if (obj_index < 1 || obj_index > this->le->objects.size ())
-		return false;
+              if (obj_index < 1 || obj_index > this->le->objects.size ())
+                return false;
 
-	      obj_index--;
+              obj_index--;
 
-	      offset += 3;
+              offset += 3;
 
-	      if ((reloc_flags & 0x10) != 0) /* 32-bit offset */
-		{
-		  if (end - offset < 4)
-		    return false;
+              if ((reloc_flags & 0x10) != 0) /* 32-bit offset */
+                {
+                  if (end - offset < 4)
+                    return false;
 
-		  read_le<uint32_t> (is, &dst_off_32);
-		  offset += 4;
-		}
-	      else /* 16-bit offset */
-		{
-		  if (end - offset < 2)
-		    return false;
+                  read_le<uint32_t> (is, &dst_off_32);
+                  offset += 4;
+                }
+              else /* 16-bit offset */
+                {
+                  if (end - offset < 2)
+                    return false;
 
-		  read_le<uint16_t> (is, &dst_off_16);
-		  dst_off_32 = dst_off_16;
-		  offset += 2;
-		}
+                  read_le<uint16_t> (is, &dst_off_16);
+                  dst_off_32 = dst_off_16;
+                  offset += 2;
+                }
 
-	      if (!is->good ())
-		return false;
+              if (!is->good ())
+                return false;
 
-	      fixup.offset = (n - obj->first_page_index)
-			       * this->le->header.page_size
-			     + src_off;
-	      fixup.address = this->le->objects[obj_index].base_address
-		              + dst_off_32;
+              fixup.offset = (n - obj->first_page_index)
+                               * this->le->header.page_size
+                             + src_off;
+              fixup.address = this->le->objects[obj_index].base_address
+                              + dst_off_32;
 
-	      this->le->fixups[oi][fixup.offset] = fixup;
-	      this->le->fixup_addresses.insert (fixup.address);
-	    }
-	}
+              this->le->fixups[oi][fixup.offset] = fixup;
+              this->le->fixup_addresses.insert (fixup.address);
+            }
+        }
     }
 
   return true;
@@ -535,8 +535,8 @@ LinearExecutable::get_object_header_at_address (uint32_t addr) const
       hdr = &this->objects[n];
 
       if (hdr->base_address <= addr
-	  and addr < hdr->base_address + hdr->virtual_size)
-	return hdr;
+          and addr < hdr->base_address + hdr->virtual_size)
+        return hdr;
     }
 
   return NULL;
@@ -578,95 +578,95 @@ operator<< (ostream &os, const LinearExecutable::Header &hdr)
   const size_t value_col = 40;
 
   print_variable (&os, value_col, "byte_order",
-		  hdr.byte_order);
+                  hdr.byte_order);
   print_variable (&os, value_col, "word_order",
-		  hdr.word_order);
+                  hdr.word_order);
   print_variable (&os, value_col, "format_version",
-		  hdr.format_version);
+                  hdr.format_version);
   print_variable (&os, value_col, "cpu_type",
-		  hdr.cpu_type);
+                  hdr.cpu_type);
   print_variable (&os, value_col, "os_type",
-		  hdr.os_type);
+                  hdr.os_type);
   print_variable (&os, value_col, "module_version",
-		  hdr.module_version);
+                  hdr.module_version);
   print_variable (&os, value_col, "module_flags",
-		  hdr.module_flags);
+                  hdr.module_flags);
   print_variable (&os, value_col, "page_count",
-		  hdr.page_count);
+                  hdr.page_count);
   print_variable (&os, value_col, "eip_object_index",
-		  hdr.eip_object_index);
+                  hdr.eip_object_index);
   print_variable (&os, value_col, "eip_offset",
-		  hdr.eip_offset);
+                  hdr.eip_offset);
   print_variable (&os, value_col, "esp_object_index",
-		  hdr.esp_object_index);
+                  hdr.esp_object_index);
   print_variable (&os, value_col, "esp_offset",
-		  hdr.esp_offset);
+                  hdr.esp_offset);
   print_variable (&os, value_col, "page_size",
-		  hdr.page_size);
+                  hdr.page_size);
   print_variable (&os, value_col, "last_page_size",
-		  hdr.last_page_size);
+                  hdr.last_page_size);
   print_variable (&os, value_col, "fixup_section_size",
-		  hdr.fixup_section_size);
+                  hdr.fixup_section_size);
   print_variable (&os, value_col, "fixup_section_check_sum",
-		  hdr.fixup_section_check_sum);
+                  hdr.fixup_section_check_sum);
   print_variable (&os, value_col, "loader_section_size",
-		  hdr.loader_section_size);
+                  hdr.loader_section_size);
   print_variable (&os, value_col, "loader_section_check_sum",
-		  hdr.loader_section_check_sum);
+                  hdr.loader_section_check_sum);
   print_variable (&os, value_col, "object_table_offset",
-		  hdr.object_table_offset);
+                  hdr.object_table_offset);
   print_variable (&os, value_col, "object_count",
-		  hdr.object_count);
+                  hdr.object_count);
   print_variable (&os, value_col, "object_page_table_offset",
-		  hdr.object_page_table_offset);
+                  hdr.object_page_table_offset);
   print_variable (&os, value_col, "object_iterated_pages_offset",
-		  hdr.object_iterated_pages_offset);
+                  hdr.object_iterated_pages_offset);
   print_variable (&os, value_col, "resource_table_offset",
-		  hdr.resource_table_offset);
+                  hdr.resource_table_offset);
   print_variable (&os, value_col, "resource_entry_count",
-		  hdr.resource_entry_count);
+                  hdr.resource_entry_count);
   print_variable (&os, value_col, "resident_name_table_offset",
-		  hdr.resident_name_table_offset);
+                  hdr.resident_name_table_offset);
   print_variable (&os, value_col, "entry_table_offset",
-		  hdr.entry_table_offset);
+                  hdr.entry_table_offset);
   print_variable (&os, value_col, "module_directives_offset",
-		  hdr.module_directives_offset);
+                  hdr.module_directives_offset);
   print_variable (&os, value_col, "module_directives_count",
-		  hdr.module_directives_count);
+                  hdr.module_directives_count);
   print_variable (&os, value_col, "fixup_page_table_offset",
-		  hdr.fixup_page_table_offset);
+                  hdr.fixup_page_table_offset);
   print_variable (&os, value_col, "fixup_record_table_offset",
-		  hdr.fixup_record_table_offset);
+                  hdr.fixup_record_table_offset);
   print_variable (&os, value_col, "import_module_name_table_offset",
-		  hdr.import_module_name_table_offset);
+                  hdr.import_module_name_table_offset);
   print_variable (&os, value_col, "import_module_name_entry_count",
-		  hdr.import_module_name_entry_count);
+                  hdr.import_module_name_entry_count);
   print_variable (&os, value_col, "import_procedure_name_table_offset",
-		  hdr.import_procedure_name_table_offset);
+                  hdr.import_procedure_name_table_offset);
   print_variable (&os, value_col, "per_page_check_sum_table_offset",
-		  hdr.per_page_check_sum_table_offset);
+                  hdr.per_page_check_sum_table_offset);
   print_variable (&os, value_col, "data_pages_offset",
-		  hdr.data_pages_offset);
+                  hdr.data_pages_offset);
   print_variable (&os, value_col, "preload_pages_count",
-		  hdr.preload_pages_count);
+                  hdr.preload_pages_count);
   print_variable (&os, value_col, "non_resident_name_table_offset",
-		  hdr.non_resident_name_table_offset);
+                  hdr.non_resident_name_table_offset);
   print_variable (&os, value_col, "non_resident_name_entry_count",
-		  hdr.non_resident_name_entry_count);
+                  hdr.non_resident_name_entry_count);
   print_variable (&os, value_col, "non_resident_name_table_check_sum",
-		  hdr.non_resident_name_table_check_sum);
+                  hdr.non_resident_name_table_check_sum);
   print_variable (&os, value_col, "auto_data_segment_object_index",
-		  hdr.auto_data_segment_object_index);
+                  hdr.auto_data_segment_object_index);
   print_variable (&os, value_col, "debug_info_offset",
-		  hdr.debug_info_offset);
+                  hdr.debug_info_offset);
   print_variable (&os, value_col, "debug_info_size",
-		  hdr.debug_info_size);
+                  hdr.debug_info_size);
   print_variable (&os, value_col, "instance_pages_count",
-		  hdr.instance_pages_count);
+                  hdr.instance_pages_count);
   print_variable (&os, value_col, "instance_pages_demand_count",
-		  hdr.instance_pages_demand_count);
+                  hdr.instance_pages_demand_count);
   print_variable (&os, value_col, "heap_size",
-		  hdr.heap_size);
+                  hdr.heap_size);
 
   return os;
 }

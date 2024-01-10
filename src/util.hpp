@@ -159,7 +159,7 @@ read_s8 (const void *memory)
 template <typename T>
 void
 print_variable (std::ostream *os, size_t value_column,
-		const std::string &name, const T &value, size_t indent = 2)
+                const std::string &name, const T &value, size_t indent = 2)
 {
   size_t pos;
   std::ios::fmtflags flags;
