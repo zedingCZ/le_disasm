@@ -103,11 +103,11 @@ Analyser::trace_code_at_address (uint32_t start_addr)
 
   reg = this->get_region_at_address (start_addr);
   if (reg == NULL)
-  {
-      std::cerr << "Warning: Tried to trace code at an unmapped address: "
-                << start_addr << ".\n";
+    {
+      std::cerr << "Warning: Tried to trace code at an unmapped address: 0x"
+                << std::hex << start_addr << ".\n";
       return;
-  }
+    }
 
   if (reg->get_type () == Region::CODE) /* already traced */
     return;
