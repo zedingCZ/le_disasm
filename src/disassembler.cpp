@@ -113,8 +113,6 @@ Disassembler::disassemble (uint32_t addr, const void *data, size_t length,
 {
   DisassemblerContext context;
   int size;
-  uint8_t data0, data1 = 0;
-  bool have_target;
 
   assert (length > 0);
 
@@ -135,20 +133,29 @@ Disassembler::disassemble (uint32_t addr, const void *data, size_t length,
   if (size == 0)
     return;
 
+  set_target_and_type(addr, data, inst);
+}
+
+void
+Disassembler::set_target_and_type(uint32_t addr, const void *data, Instruction *inst)
+{
+  uint8_t data0, data1 = 0;
+  bool have_target;
+
   have_target = true;
   data0 = ((uint8_t *) data)[0];
 
   if (data0 == 0x2e)
     {
-      if (size > 1)
+      if (inst->size > 1)
         data0 = ((uint8_t *) data)[1];
 
-      if (size > 2)
+      if (inst->size > 2)
         data1 = ((uint8_t *) data)[2];
     }
   else
     {
-      if (size > 1)
+      if (inst->size > 1)
         data1 = ((uint8_t *) data)[1];
     }
 
@@ -197,14 +204,14 @@ Disassembler::disassemble (uint32_t addr, const void *data, size_t length,
            or inst->type == Instruction::JUMP
            or inst->type == Instruction::CALL))
     {
-      if (size < 5)
+      if (inst->size < 5)
         inst->target =
-          addr + size
-          + read_s8 ((uint8_t *) data + size - sizeof (int8_t));
+          addr + inst->size
+          + read_s8 ((uint8_t *) data + inst->size - sizeof (int8_t));
       else
         inst->target =
-          addr + size
-          + read_le<int32_t> ((uint8_t *) data + size - sizeof (int32_t));
+          addr + inst->size
+          + read_le<int32_t> ((uint8_t *) data + inst->size - sizeof (int32_t));
     }
 }
 
