@@ -300,7 +300,7 @@ print_region (const Region *reg, const Image::Object *obj, LinearExecutable *le,
   LEFM::const_iterator itr;
 
 #ifdef DEBUG
-  std::cerr << "Region: " << *reg << ":\n";
+  std::cerr << "Region: " << *reg << std::endl;
 #endif
 
   obj = img->get_object_at_address (reg->get_address ());

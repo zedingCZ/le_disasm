@@ -67,6 +67,7 @@ protected:
   bool load_object_page_header (ObjectPageHeader *hdr);
   bool load_fixup_record_offsets (void);
   bool load_fixup_record_table (void);
+  bool load_fixup_record_pages (size_t oi);
 
 public:
   LinearExecutable *load (istream *is, const std::string &name);
@@ -396,12 +397,11 @@ LinearExecutable::Loader::load_fixup_record_offsets (void)
 }
 
 bool
-LinearExecutable::Loader::load_fixup_record_table (void)
+LinearExecutable::Loader::load_fixup_record_pages (size_t oi)
 {
   Fixup fixup;
   ObjectHeader *obj;
   size_t n;
-  size_t oi;
   size_t offset;
   size_t end;
   uint8_t addr_flags;
@@ -412,103 +412,114 @@ LinearExecutable::Loader::load_fixup_record_table (void)
   uint8_t obj_index;
   istream *is = this->is;
 
-  this->le->fixups.resize (this->le->objects.size ());
+  obj = &this->le->objects[oi];
 
-  for (oi = 0; oi < this->le->objects.size (); oi++)
+  for (n = obj->first_page_index;
+       n < obj->first_page_index + obj->page_count; n++)
     {
-      obj = &this->le->objects[oi];
+      offset = this->header_offset
+               + this->le->header.fixup_record_table_offset
+               + this->fixup_record_offsets[n];
+      end    = offset
+               + this->fixup_record_offsets[n + 1]
+               - this->fixup_record_offsets[n];
 
-      for (n = obj->first_page_index;
-           n < obj->first_page_index + obj->page_count; n++)
+      is->seekg (offset);
+
+      while (offset < end)
         {
-          offset = this->header_offset
-                   + this->le->header.fixup_record_table_offset
-                   + this->fixup_record_offsets[n];
-          end    = offset
-                   + this->fixup_record_offsets[n + 1]
-                   - this->fixup_record_offsets[n];
+          if (end - offset < 2)
+            return false;
 
-          is->seekg (offset);
+          read_u8 (is, &addr_flags);
+          read_u8 (is, &reloc_flags);
 
-          while (offset < end)
+          if (!is->good ())
+            return false;
+
+          if ((addr_flags & 0x20) != 0)
+            {
+              cerr << "Fixup lists not supported.\n";
+              return false;
+            }
+
+          if ((addr_flags & 0xf) != 0x7) /* 32-bit offset */
+            {
+              cerr << "Unsupported fixup type " << std::hex << std::showbase
+                   << (addr_flags & 0xf) << ".\n";
+              return false;
+            }
+
+          if ((reloc_flags & 0x3) != 0x0) /* internal ref */
+            {
+              cerr << "Unsupported reloc type " << std::hex << std::showbase
+                   << (reloc_flags & 0x03) << ".\n";
+            }
+
+          offset += 2;
+
+          if (end - offset < 3)
+            return false;
+
+          read_le<int16_t> (is, &src_off);
+          read_u8 (is, &obj_index);
+
+          if (!is->good ())
+            return false;
+
+          if (obj_index < 1 || obj_index > this->le->objects.size ())
+            return false;
+
+          obj_index--;
+
+          offset += 3;
+
+          if ((reloc_flags & 0x10) != 0) /* 32-bit offset */
+            {
+              if (end - offset < 4)
+                return false;
+
+              read_le<uint32_t> (is, &dst_off_32);
+              offset += 4;
+            }
+          else /* 16-bit offset */
             {
               if (end - offset < 2)
                 return false;
 
-              read_u8 (is, &addr_flags);
-              read_u8 (is, &reloc_flags);
-
-              if (!is->good ())
-                return false;
-
-              if ((addr_flags & 0x20) != 0)
-                {
-                  cerr << "Fixup lists not supported.\n";
-                  return false;
-                }
-
-              if ((addr_flags & 0xf) != 0x7) /* 32-bit offset */
-                {
-                  cerr << "Unsupported fixup type " << std::hex << std::showbase
-                       << (addr_flags & 0xf) << ".\n";
-                  return false;
-                }
-
-              if ((reloc_flags & 0x3) != 0x0) /* internal ref */
-                {
-                  cerr << "Unsupported reloc type " << std::hex << std::showbase
-                       << (reloc_flags & 0x03) << ".\n";
-                }
-
+              read_le<uint16_t> (is, &dst_off_16);
+              dst_off_32 = dst_off_16;
               offset += 2;
-
-              if (end - offset < 3)
-                return false;
-
-              read_le<int16_t> (is, &src_off);
-              read_u8 (is, &obj_index);
-
-              if (!is->good ())
-                return false;
-
-              if (obj_index < 1 || obj_index > this->le->objects.size ())
-                return false;
-
-              obj_index--;
-
-              offset += 3;
-
-              if ((reloc_flags & 0x10) != 0) /* 32-bit offset */
-                {
-                  if (end - offset < 4)
-                    return false;
-
-                  read_le<uint32_t> (is, &dst_off_32);
-                  offset += 4;
-                }
-              else /* 16-bit offset */
-                {
-                  if (end - offset < 2)
-                    return false;
-
-                  read_le<uint16_t> (is, &dst_off_16);
-                  dst_off_32 = dst_off_16;
-                  offset += 2;
-                }
-
-              if (!is->good ())
-                return false;
-
-              fixup.offset = (n - obj->first_page_index)
-                               * this->le->header.page_size
-                             + src_off;
-              fixup.address = this->le->objects[obj_index].base_address
-                              + dst_off_32;
-
-              this->le->fixups[oi][fixup.offset] = fixup;
-              this->le->fixup_addresses.insert (fixup.address);
             }
+
+          if (!is->good ())
+            return false;
+
+          fixup.offset = (n - obj->first_page_index)
+                           * this->le->header.page_size
+                         + src_off;
+          fixup.address = this->le->objects[obj_index].base_address
+                          + dst_off_32;
+
+          this->le->fixups[oi][fixup.offset] = fixup;
+          this->le->fixup_addresses.insert (fixup.address);
         }
+    }
+
+  return true;
+}
+
+bool
+LinearExecutable::Loader::load_fixup_record_table (void)
+{
+  size_t oi;
+
+  this->le->fixups.resize (this->le->objects.size ());
+
+  for (oi = 0; oi < this->le->objects.size (); oi++)
+    {
+      if (!load_fixup_record_pages (oi))
+          return false;
     }
 
   return true;
