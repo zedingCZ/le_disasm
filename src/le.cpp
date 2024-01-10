@@ -152,7 +152,7 @@ bool
 LinearExecutable::Loader::load_le_header_offset(void)
 {
   char id[2];
-  uint8_t byte;
+  uint16_t word;
   istream *is = this->is;
   LinearExecutable *le = this->le.get();
 
@@ -174,19 +174,53 @@ LinearExecutable::Loader::load_le_header_offset(void)
       return false;
     }
 
+  // Offset of relocation table; expected to have high enough value for new exec formats
   is->seekg (0x18);
-  if (!read_u8 (is, &byte))
+  if (!read_le (is, &word))
     return false;
 
-  if (byte < 0x40)
-    {
-      cerr << "Not a LE executable, at offset 0x18: expected 0x40 or more, got 0x" << std::hex << (int)byte << std::endl;
-      return false;
-    }
-
+  // New executable info block starts at 0x1C, and has an offset to NE header within
   is->seekg (0x3c);
   if (!read_le (is, &this->header_offset))
     return false;
+
+  // If there is no new exe header offset, we may still have LE with an embedded extender
+  if (word < 0x40)
+    {
+      char str[0x1000];
+      static char le_signature[] = "LE\0\0\0\0";
+      is->seekg (0x240);
+      is->read (str, 0x100);
+      if (std::string(str, str+0x100).find("DOS/4G  ") != std::string::npos)
+        {
+            size_t pos;
+            std::string signature_str(le_signature, le_signature+sizeof(le_signature));
+            cerr << "Embedded DOS/4G identified\n";
+            // Search for the LE head
+            is->seekg (0x29000);
+            is->read (str, 0x1000);
+            pos = std::string(str, str+0x1000).find(signature_str);
+            if (pos != std::string::npos && (pos & 3) == 0)
+              {
+                this->header_offset = 0x29000 + pos;
+                return true;
+              }
+            cerr << "Not a LE executable, no signature found at expected offset range." << std::endl;
+            return false;
+        }
+    }
+
+  if (word < 0x40)
+    {
+      cerr << "Not a LE executable, at offset 0x18: expected 0x40 or more, got 0x" << std::hex << word << "." << std::endl;
+      return false;
+    }
+
+  if (this->header_offset == 0)
+    {
+      cerr << "Not a LE executable, at offset 0x3c: new executable header offset is zero." << std::endl;
+      return false;
+    }
 
   return true;
 }
