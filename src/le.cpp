@@ -92,7 +92,7 @@ LinearExecutable::Loader::load (istream *is, const std::string &name)
       goto err;
     }
 
-#ifdef ENABLE_DEBUG
+#ifdef DEBUG
   cerr << "LE Header:\n";
   cerr << this->le->header;
 #endif
@@ -103,7 +103,7 @@ LinearExecutable::Loader::load (istream *is, const std::string &name)
       goto err;
     }
 
-#ifdef ENABLE_DEBUG
+#ifdef DEBUG
   {
     PUSH_IOS_FLAGS (&cerr);
 
@@ -126,7 +126,7 @@ LinearExecutable::Loader::load (istream *is, const std::string &name)
     }
 
 #if 0
-#ifdef ENABLE_DEBUG
+#ifdef DEBUG
   cerr << "\n\n";
   cerr << "Object Page Table:\n";
   cerr << "  Index  First Second Type\n";
@@ -213,7 +213,7 @@ LinearExecutable::Loader::load_header (void)
   if (!this->load_le_header_offset())
     return false;
 
-#ifdef ENABLE_DEBUG
+#ifdef DEBUG
   print_variable (&cerr, 40, "header_offset", this->header_offset);
   cerr << "\n";
 #endif
