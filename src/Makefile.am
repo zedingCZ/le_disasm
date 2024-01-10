@@ -6,6 +6,7 @@ le_disasm_SOURCES = \
 	analyser.cpp \
 	disassembler.hpp \
 	disassembler.cpp \
+	error.hpp \
 	instruction.hpp \
 	instruction.cpp \
 	image.hpp \

@@ -16,8 +16,10 @@
  */
 #include <iostream>
 #include <iomanip>
+#include <memory>
 
 #include "le.hpp"
+#include "error.hpp"
 #include "util.hpp"
 
 using std::cerr;
@@ -53,7 +55,8 @@ read_u8 (istream *is, uint8_t *ret)
 class LinearExecutable::Loader
 {
 protected:
-  LinearExecutable *le;
+  std::unique_ptr<LinearExecutable> le;
+  //LinearExecutable *le;
   std::istream *is;
   uint32_t header_offset;
   vector<uint32_t> fixup_record_offsets;
@@ -81,16 +84,14 @@ LinearExecutable::Loader::load (istream *is, const std::string &name)
 
   if (!this->is->good ())
     {
-      cerr << "Failed to open " << name << ".\n";
-      return NULL;
+      throw Error() << "Failed to open \"" << name << "\".";
     }
 
-  this->le = new LinearExecutable;
+  this->le = std::unique_ptr<LinearExecutable>(new LinearExecutable);
 
   if (!this->load_header ())
     {
-      cerr << "Failed to load LE header.\n";
-      goto err;
+      throw Error() << "Failed to load LE header.";
     }
 
 #ifdef DEBUG
@@ -100,8 +101,7 @@ LinearExecutable::Loader::load (istream *is, const std::string &name)
 
   if (!this->load_object_table ())
     {
-      cerr << "Failed to load object table.\n";
-      goto err;
+      throw Error() << "Failed to load object table.";
     }
 
 #ifdef DEBUG
@@ -122,8 +122,7 @@ LinearExecutable::Loader::load (istream *is, const std::string &name)
 
   if (!this->load_object_page_table ())
     {
-      cerr << "Failed to load object page table.\n";
-      goto err;
+      throw Error() << "Failed to load object page table.";
     }
 
 #if 0
@@ -138,21 +137,15 @@ LinearExecutable::Loader::load (istream *is, const std::string &name)
 
   if (!this->load_fixup_record_offsets ())
     {
-      cerr << "Failed to load fixup page table.\n";
-      goto err;
+      throw Error() << "Failed to load fixup page table.";
     }
 
   if (!this->load_fixup_record_table ())
     {
-      cerr << "Failed to load fixup table.\n";
-      goto err;
+      throw Error() << "Failed to load fixup table.";
     }
 
-  return this->le;
-
-err:
-  delete this->le;
-  return NULL;
+  return this->le.release();
 }
 
 bool
@@ -161,7 +154,7 @@ LinearExecutable::Loader::load_le_header_offset(void)
   char id[2];
   uint8_t byte;
   istream *is = this->is;
-  LinearExecutable *le = this->le;
+  LinearExecutable *le = this->le.get();
 
   is->seekg (0);
   is->read (id, 2);
@@ -187,7 +180,7 @@ LinearExecutable::Loader::load_le_header_offset(void)
 
   if (byte < 0x40)
     {
-      cerr << "Not a LE executable, at offset 0x18: expected 0x40 or more, got 0x" << std::hex << byte << std::endl;
+      cerr << "Not a LE executable, at offset 0x18: expected 0x40 or more, got 0x" << std::hex << (int)byte << std::endl;
       return false;
     }
 
@@ -204,7 +197,7 @@ LinearExecutable::Loader::load_header (void)
   char id[2];
   uint8_t byte;
   istream *is = this->is;
-  LinearExecutable *le = this->le;
+  LinearExecutable *le = this->le.get();
 
   is->seekg (0);
   is->read (id, 2);

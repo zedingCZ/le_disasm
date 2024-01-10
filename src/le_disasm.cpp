@@ -18,9 +18,11 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <sstream>
 
 #include "analyser.hpp"
+#include "error.hpp"
 #include "image.hpp"
 #include "instruction.hpp"
 #include "known_file.hpp"
@@ -564,50 +566,59 @@ debug_print_regions (Analyser *anal)
   for (itr = map->begin (); itr != map->end (); ++itr)
     std::cout << itr->second << "\n";
 }
-  
-int
-main (int argc, char **argv)
+
+void
+main_execute(const char *options_fname)
 {
-  LinearExecutable *le;
-  Image *image;
+  std::unique_ptr<LinearExecutable> le;
+  std::unique_ptr<Image> image;
   std::ifstream ifs;
   Analyser anal;
 
+  ifs.open (options_fname, std::ios::binary);
+  if(!ifs.is_open())
+    {
+      throw Error() << "Error opening file: " << options_fname;
+    }
+
+  le = std::unique_ptr<LinearExecutable>(
+      LinearExecutable::load (&ifs, options_fname)
+  );
+
+  image = std::unique_ptr<Image>(
+      create_image (&ifs, le.get())
+  );
+
+  anal = Analyser (le.get(), image.get());
+
+  KnownFile::check(anal, le.get());
+  KnownFile::pre_anal_fixups_apply(anal);
+
+  anal.run ();
+
+  KnownFile::post_anal_fixups_apply(anal);
+
+  print_code (le.get(), image.get(), &anal);
+}
+
+int
+main (int argc, char **argv)
+{
   if (argc < 2)
     {
       std::cerr << "Usage: " << argv[0] << " [main.exe]\n";
       return 1;
     }
 
-  try {
+  try
+    {
+      main_execute(argv[1]);
+    }
+  catch (const std::exception &e)
+    {
+      std::cerr << std::dec << e.what() << std::endl;
+      return 1;
+    }
 
-    ifs.open (argv[1], std::ios::binary);
-    if(!ifs.is_open())
-      {
-        std::cerr << "Error opening file: " << argv[1];
-        return 1;
-      }
-
-    le = LinearExecutable::load (&ifs, argv[1]);
-
-    image = create_image (&ifs, le);
-
-    anal = Analyser (le, image);
-
-    KnownFile::check(anal, le);
-    KnownFile::pre_anal_fixups_apply(anal);
-
-    anal.run ();
-
-    KnownFile::post_anal_fixups_apply(anal);
-
-    print_code (le, image, &anal);
-
-  } catch (const std::exception &e) {
-    std::cerr << std::dec << e.what() << std::endl;
-  }
-
-  delete image;
-  delete le;
   return 0;
 }
