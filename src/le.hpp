@@ -1,20 +1,18 @@
-/* 
- * swdisasm - LE disassembler for Syndicate Wars
- * 
- * Copyright (C) 2010  Unavowed <unavowed@vexillium.org>
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/*
+ * le_disasm - Linear Executable disassembler
+ */
+/** @file le.hpp
+ *     Header file for le.cpp, with declaration of LinearExecutable class.
+ * @par Purpose:
+ *     Declares structs and functions for parsing LE/LX headers,
+ *     and preparing lists of objects stored within the executable.
+ * @author   Unavowed <unavowed@vexillium.org>
+ * @date     2010-09-20 - 2024-01-10
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
  */
 #ifndef LEDISASM_LE_H
 #define LEDISASM_LE_H

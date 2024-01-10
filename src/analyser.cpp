@@ -1,22 +1,20 @@
-/* 
- * swdisasm - LE disassembler for Syndicate Wars
- * 
- * Copyright (C) 2010  Unavowed <unavowed@vexillium.org>
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/*
+ * le_disasm - Linear Executable disassembler
  */
-
+/** @file analyser.cpp
+ *     Implementation of methods for Analyser class.
+ * @par Purpose:
+ *     Implementation of Analyser class methods which bind together the
+ *     disassembler and the binary image, being the central point of
+ *     binary data analysis.
+ * @author   Unavowed <unavowed@vexillium.org>
+ * @date     2010-09-20 - 2024-01-10
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
 #include <cassert>
 #include <iostream>
 

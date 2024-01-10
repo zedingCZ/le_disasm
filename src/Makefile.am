@@ -1,7 +1,7 @@
-bin_PROGRAMS = swdisasm
+bin_PROGRAMS = le_disasm
 bindir = $(prefix)/usr/$(PACKAGE)
 
-swdisasm_SOURCES = \
+le_disasm_SOURCES = \
 	analyser.hpp \
 	analyser.cpp \
 	disassembler.hpp \
@@ -25,24 +25,24 @@ swdisasm_SOURCES = \
 	util.hpp \
 	util.cpp
 
-swdisasm_CPPFLAGS = 
+le_disasm_CPPFLAGS = 
 
-swdisasm_RCFLAGS = \
+le_disasm_RCFLAGS = \
   -I"$(top_srcdir)/src" -I"$(builddir)" \
   $(RCFLAGS)
 
 if HAS_WINDRES
-swdisasm_RESRCS = swdisasm_stdres.res
+le_disasm_RESRCS = le_disasm_stdres.res
 else
-swdisasm_RESRCS =
+le_disasm_RESRCS =
 endif
 
-swdisasm_LDADD = \
-  $(swdisasm_RESRCS)
+le_disasm_LDADD = \
+  $(le_disasm_RESRCS)
 
 if HAS_WINDRES
 %.res: $(top_srcdir)/res/%.rc
-	$(WINDRES) $(swdisasm_RCFLAGS) -i $< -J rc -o $@ -O coff
+	$(WINDRES) $(le_disasm_RCFLAGS) -i $< -J rc -o $@ -O coff
 endif
 
 # Include dynamic libraries in the package
@@ -50,7 +50,7 @@ if TARGET_WINDOWS
 install-exec-hook:
 	mkdir -p "$(DESTDIR)${prefix}/usr/$(PACKAGE)"
 	## Find main executable dependencies
-	$(eval lib_SHARED_INSTALL := $(shell objdump -p swdisasm$(EXEEXT) | \
+	$(eval lib_SHARED_INSTALL := $(shell objdump -p le_disasm$(EXEEXT) | \
 		sed -n 's/\s*\(DLL Name:\|NEEDED\)\s*\(.*\)$$/\2/p' | \
 		xargs -I {} find $(shell dirname $(shell which ${CXX})) -name '{}'))
 	## Find sub-dependencies for the previous dependencies

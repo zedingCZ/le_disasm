@@ -1,21 +1,19 @@
-/******************************************************************************/
-// Free implementation of Bullfrog's Syndicate Wars strategy game.
-/******************************************************************************/
-/** @file swdisasm_ver.h
+/*
+ * le_disasm - Linear Executable disassembler
+ */
+/** @file le_disasm_ver.h
  *     Project name, version, copyrights and global definitions.
  * @par Purpose:
  *     Header file for global names and defines used by resource compiler.
- * @par Comment:
  *     Can only contain commands which resource compiler can understand.
- * @author   Tomasz Lis
- * @date     10 Oct 2012 - 13 Oct 2021
+ * @author   Unavowed <unavowed@vexillium.org>
+ * @date     2010-09-20 - 2024-01-10
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
  *     the Free Software Foundation; either version 2 of the License, or
  *     (at your option) any later version.
  */
-/******************************************************************************/
 #ifndef LEDISASM_VER_H
 #define LEDISASM_VER_H
 
@@ -32,7 +30,7 @@
 #define PROGRAM_FULL_NAME "Disassembling tool for Linear Executable files"
 #define PROGRAM_AUTHORS   "see AUTHORS file"
 #define COMPANY_NAME      "Community based"
-#define INTERNAL_NAME     "swdisasm"
+#define INTERNAL_NAME     "le_disasm"
 #define LEGAL_COPYRIGHT   "GNU General Public License"
 #define LEGAL_TRADEMARKS  ""
 #define FILE_VERSION      VERSION

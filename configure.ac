@@ -8,10 +8,10 @@ m4_define([ver_release], [1])
 # Set build number to commit count only if ".git" folder is present
 m4_define([ver_build], m4_if(m4_esyscmd_s([ls -1 -d ".git" 2>&1]),.git,[m4_esyscmd_s([git rev-list --count HEAD])],[0]))
 
-m4_define([swdisasm_version],
+m4_define([ledisasm_version],
       [ver_major.ver_minor.ver_release.ver_build])
 
-AC_INIT([SW Disassembler], [swdisasm_version], [unavowed@vexillium.org], [swdisasm])
+AC_INIT([LE Disassembler], [ledisasm_version], [unavowed@vexillium.org], [le_disasm])
 
 AC_CONFIG_SRCDIR([src/disassembler.cpp])
 AC_CONFIG_HEADERS([src/config.h])
