@@ -73,11 +73,21 @@ operator<< (std::ostream &os, Region::Type type)
 {
   switch (type)
     {
-    case Region::UNKNOWN: os << "unknown";   break;
-    case Region::CODE:    os << "code";      break;
-    case Region::DATA:    os << "data";      break;
-    case Region::VTABLE:  os << "vtable";    break;
-    default:              os << "(unknown)"; break;
+    case Region::UNKNOWN:
+      os << "unknown";
+      break;
+    case Region::CODE:
+      os << "code";
+      break;
+    case Region::DATA:
+      os << "data";
+      break;
+    case Region::VTABLE:
+      os << "vtable";
+      break;
+    default:
+      os << "(unknown " << std::dec << type << ")";
+      break;
     }
   return os;
 }
