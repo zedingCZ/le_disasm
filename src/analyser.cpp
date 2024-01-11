@@ -72,6 +72,17 @@ Analyser::add_eip_to_trace_queue (void)
 }
 
 void
+Analyser::add_labels_to_trace_queue (void)
+{
+  for (auto it = this->labels.begin(); it != this->labels.end(); it++)
+    {
+      Label *label = &it->second;
+      if (label->get_type() == Label::FUNCTION or label->get_type() == Label::JUMP)
+        this->add_code_trace_address (label->get_address());
+    }
+}
+
+void
 Analyser::add_code_trace_address (uint32_t addr)
 {
   this->code_trace_queue.push_back (addr);
