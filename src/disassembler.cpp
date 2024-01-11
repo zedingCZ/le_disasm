@@ -188,7 +188,7 @@ Disassembler::set_target_and_type(uint32_t addr, const void *data, Instruction *
       inst->type = Instruction::RET;
     else if (data0 == 0xcb) /* lret */
       inst->type = Instruction::RET;
-    else if (data0 == 0xff) /* jmp near or call near indirect*/
+    else if (data0 == 0xff) /* jmp near or call near indirect */
       {
         have_target = false;
 

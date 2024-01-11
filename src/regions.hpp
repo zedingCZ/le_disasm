@@ -23,6 +23,13 @@
 
 class Analyser;
 
+/** Region represents a chunk of code or data between two labels.
+ *
+ * For CODE type, the region is a set of instructions with a label at
+ * start, and either label or jump/ret instruction at end. Remember,
+ * region is not a whole function - unless there are no jump points
+ * within that function.
+ */
 class Region
 {
 protected:
