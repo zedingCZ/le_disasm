@@ -180,6 +180,7 @@ anal.set_label (Label (0x05dbe0, Label::FUNCTION));
 anal.set_label (Label (0x05eff0, Label::FUNCTION, "unused_func_127"));
 anal.set_label (Label (0x05f0e0, Label::FUNCTION, "unused_func_128"));
 anal.set_label (Label (0x07e85c, Label::FUNCTION, "Synd_nav_rulesA2B"));
+anal.set_label (Label (0x07e918, Label::FUNCTION, "triangulation_allocate"));
 anal.set_label (Label (0x07eb98, Label::FUNCTION, "triangulation_init_edges"));
 anal.set_label (Label (0x07ec24, Label::FUNCTION, "triangulation_initxy"));
 anal.set_label (Label (0x07eda0, Label::FUNCTION, "triangulation_clear"));
