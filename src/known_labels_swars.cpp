@@ -14,10 +14,12 @@
  *     the Free Software Foundation; either version 2 of the License, or
  *     (at your option) any later version.
  */
+anal.set_label (Label (0x025990, Label::FUNCTION, "unused_func_074"));
 anal.set_label (Label (0x0359c0, Label::FUNCTION));
 anal.set_label (Label (0x03cf38, Label::FUNCTION));
 anal.set_label (Label (0x03d174, Label::FUNCTION));
 anal.set_label (Label (0x03d3b0, Label::FUNCTION));
+anal.set_label (Label (0x060090, Label::FUNCTION, "unused_func_130"));
 anal.set_label (Label (0x08c578, Label::FUNCTION));
 anal.set_label (Label (0x0d265c, Label::FUNCTION));
 anal.set_label (Label (0x0d299c, Label::FUNCTION));
@@ -159,7 +161,7 @@ anal.set_label (Label (0x117df0, Label::FUNCTION));
 anal.set_label (Label (0x11f547, Label::FUNCTION));
 anal.set_label (Label (0x1200b9, Label::FUNCTION));
 anal.set_label (Label (0x120843, Label::FUNCTION));
-anal.set_label (Label (0x1208b5, Label::FUNCTION)); /* XXX: strange */
+anal.set_label (Label (0x1208b5, Label::FUNCTION, "__FPEHandler_"));
 anal.set_label (Label (0x139c83, Label::FUNCTION));
 anal.set_label (Label (0x13a493, Label::FUNCTION));
 anal.set_label (Label (0x13a643, Label::FUNCTION));
@@ -177,8 +179,8 @@ anal.set_label (Label (0x139940, Label::FUNCTION));
 anal.set_label (Label (0x139ca0, Label::FUNCTION));
 anal.set_label (Label (0x13a4b0, Label::FUNCTION));
 anal.set_label (Label (0x05dbe0, Label::FUNCTION));
-anal.set_label (Label (0x05eff0, Label::FUNCTION, "unused_func_127"));
-anal.set_label (Label (0x05f0e0, Label::FUNCTION, "unused_func_128"));
+anal.set_label (Label (0x05eff0, Label::FUNCTION, "thin_wall_at_line"));
+anal.set_label (Label (0x05f0e0, Label::FUNCTION, "thin_wall_around_object"));
 anal.set_label (Label (0x07e85c, Label::FUNCTION, "Synd_nav_rulesA2B"));
 anal.set_label (Label (0x07e918, Label::FUNCTION, "triangulation_allocate"));
 anal.set_label (Label (0x07eb98, Label::FUNCTION, "triangulation_init_edges"));
@@ -461,14 +463,14 @@ anal.set_label (Label (0x120658, Label::FUNCTION));
 anal.set_label (Label (0x120671, Label::FUNCTION));
 anal.set_label (Label (0x10c989, Label::FUNCTION));
 anal.set_label (Label (0x10c678, Label::FUNCTION));
-anal.set_label (Label (0x10c650, Label::FUNCTION));
-anal.set_label (Label (0x0c18c0, Label::FUNCTION));
+anal.set_label (Label (0x10c650, Label::FUNCTION, "wcpp_error_undfcnstr"));
+anal.set_label (Label (0x0c18c0, Label::FUNCTION, "__init_bin_obj_sizes"));
 anal.set_label (Label (0x0f935c, Label::FUNCTION));
-anal.set_label (Label (0x10b1d2, Label::FUNCTION));
-anal.set_label (Label (0x10de9c, Label::FUNCTION));
-anal.set_label (Label (0x10df0a, Label::FUNCTION));
-anal.set_label (Label (0x120159, Label::FUNCTION));
-anal.set_label (Label (0x120676, Label::FUNCTION));
+anal.set_label (Label (0x10b1d2, Label::FUNCTION, "store_STK"));
+anal.set_label (Label (0x10de9c, Label::FUNCTION, "init_3"));
+anal.set_label (Label (0x10df0a, Label::FUNCTION, "init_2"));
+anal.set_label (Label (0x120159, Label::FUNCTION, "longjmpInit"));
+anal.set_label (Label (0x120676, Label::FUNCTION, "init_1"));
 
 
 anal.set_label (Label (0x010000, Label::FUNCTION, "__00012D030H"));
