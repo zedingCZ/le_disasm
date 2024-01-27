@@ -145,7 +145,8 @@ Disassembler::set_target_and_type(uint32_t addr, const void *data, Instruction *
   have_target = true;
   data0 = ((uint8_t *) data)[0];
 
-  if (data0 == 0x2e)
+  /* ignore prefixes for branch prediction (2e/3e) and for operand size (66/67) */
+  if ((data0 == 0x2e) || (data0 == 0x3e) || (data0 == 0x66) || (data0 == 0x67))
     {
       if (inst->size > 1)
         data0 = ((uint8_t *) data)[1];
@@ -161,34 +162,34 @@ Disassembler::set_target_and_type(uint32_t addr, const void *data, Instruction *
 
     if (data0 == 0x0f)
       {
-        if (data1 >= 0x80 and data1 < 0x90) /* j.. near */
+        if (data1 >= 0x80 and data1 <= 0x8f) /* Jxx rel16/32 (jump near conditional) */
           inst->type = Instruction::COND_JUMP;
       }
     else if (data0 == 0xe8) /* call */
       inst->type = Instruction::CALL;
-    else if (data0 == 0xe9) /* jmp near */
-      inst->type = Instruction::JUMP;
-    else if (data0 == 0x67 and data1 == 0xe3) /* 0x67 jmp short */
+    else if (data0 == 0xe9) /* JMP rel16/rel32 (jump near) */
       inst->type = Instruction::JUMP;
     else if (data0 == 0xc2) /* retn */
       inst->type = Instruction::RET;
     else if (data0 == 0xca) /* lretn */
       inst->type = Instruction::RET;
-    else if (data0 == 0xeb) /* jmp short */
+    else if (data0 == 0xea) /* JMP ptr16:16/ptr16:32 (jump far) */
       inst->type = Instruction::JUMP;
-    else if (data0 >= 0x70 and data0 < 0x80) /* j.. short */
-      inst->type = Instruction::COND_JUMP;
-    else if (data0 >= 0xe0 and data0 <= 0xe3) /* loop */
-      inst->type = Instruction::COND_JUMP;
-    else if (data0 == 0xe3) /* jmp short */
+    else if (data0 == 0xeb) /* JMP rel8 (jump short) */
       inst->type = Instruction::JUMP;
+    else if (data0 >= 0x70 and data0 <= 0x7f) /* Jxx rel8 (jump short conditional) */
+      inst->type = Instruction::COND_JUMP;
+    else if (data0 >= 0xe0 and data0 <= 0xe2) /* loop */
+      inst->type = Instruction::COND_JUMP;
+    else if (data0 == 0xe3) /* JCXZ/JECXZ rel8 (jump short if (e)cx=0) */
+      inst->type = Instruction::COND_JUMP;
     else if (data0 == 0xcf) /* iret */
       inst->type = Instruction::RET;
     else if (data0 == 0xc3) /* ret */
       inst->type = Instruction::RET;
     else if (data0 == 0xcb) /* lret */
       inst->type = Instruction::RET;
-    else if (data0 == 0xff) /* jmp near or call near indirect */
+    else if (data0 == 0xff) /* JMP r/m16/m32 (jump near) or JMP m16:16/m16:32 (jump far) or call near indirect */
       {
         have_target = false;
 
