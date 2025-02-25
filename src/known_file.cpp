@@ -48,6 +48,26 @@ KnownFile::check(Analyser &anal, LinearExecutable *le)
           return;
         }
     }
+    if (header->eip_offset == 0x96e40 &&
+      header->esp_offset == 0xa9cc0 &&
+      header->last_page_size == 0x34a &&
+      header->fixup_section_size == 0x388ba &&
+      header->loader_section_size == 0x38cf3 &&
+      header->object_count == 4)
+    {
+      if (le->get_object_header(0)->virtual_size == 0xde830 &&
+          le->get_object_header(0)->base_address == 0x10000 &&
+          le->get_object_header(1)->virtual_size == 0x83 &&
+          le->get_object_header(1)->base_address == 0xf0000 &&
+          le->get_object_header(2)->virtual_size == 0xa9cc0 &&
+          le->get_object_header(2)->base_address == 0x100000 &&
+          le->get_object_header(3)->virtual_size == 0x1350 &&
+          le->get_object_header(3)->base_address == 0x1b0000)
+        {
+          anal.known_type = KnownFile::KNOWN_GW_FINAL_MAIN;
+          return;
+        }
+    }
 }
 
 void
@@ -76,6 +96,11 @@ KnownFile::pre_anal_fixups_apply(Analyser &anal)
 #     include "known_labels_swars.cpp"
       anal.add_labels_to_trace_queue ();
       break;
+    case KnownFile::KNOWN_GW_FINAL_MAIN:
+      ident_str = "Genewars Final `gw.exe`";
+#     include "known_labels_gw.cpp"
+      anal.add_labels_to_trace_queue ();
+      break;
     case KnownFile::NOT_KNOWN:
       break;
     }
@@ -90,6 +115,9 @@ KnownFile::post_anal_fixups_apply(Analyser &anal)
     {
     case KnownFile::KNOWN_SWARS_FINAL_MAIN:
       anal.remove_label (0x10000);
+      break;
+    case KnownFile::KNOWN_GW_FINAL_MAIN:
+      // anal.remove_label (0x10000);
       break;
     case KnownFile::NOT_KNOWN:
       break;

@@ -26,7 +26,8 @@ public:
   enum Type
   {
     NOT_KNOWN,
-    KNOWN_SWARS_FINAL_MAIN
+    KNOWN_SWARS_FINAL_MAIN,
+    KNOWN_GW_FINAL_MAIN
   };
 
   static void check(Analyser &anal, LinearExecutable *le);
