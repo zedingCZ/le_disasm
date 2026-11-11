@@ -20,6 +20,7 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include <getopt.h>
 
 #include "analyser.hpp"
 #include "error.hpp"
@@ -30,9 +31,15 @@
 #include "le.hpp"
 #include "le_image.hpp"
 #include "regions.hpp"
+#include "symbol_map.hpp"
 #include "util.hpp"
 
 using std::ios;
+
+struct Options {
+  std::string exefile;
+  std::string mapfile;
+};
 
 static void
 print_separator (void)
@@ -300,11 +307,13 @@ print_region (const Region *reg, const Image::Object *obj, LinearExecutable *le,
   Disassembler disasm;
   Instruction inst;
   LEFM::const_iterator itr;
+  bool warn_once;
 
 #ifdef DEBUG
   std::cerr << "Region: " << *reg << std::endl;
 #endif
 
+  warn_once = true;
   obj = img->get_object_at_address (reg->get_address ());
   addr = reg->get_address ();
 
@@ -381,8 +390,19 @@ print_region (const Region *reg, const Image::Object *obj, LinearExecutable *le,
 
                   value = read_le<uint32_t> (obj->get_data_at (addr));
                   dlabel = anal->get_label (value);
-                  assert (dlabel != NULL);
-                  std::cout << "\t\t.long   " << *dlabel << "\n";
+                  if (dlabel != NULL) {
+                      std::cout << "\t\t.long   " << *dlabel << "\n";
+                  } else {
+                      if (warn_once) {
+                          warn_once = false;
+                          std::cerr << "Warning: Data is an address but destination has no label: 0x"
+                            << std::hex << value << ".\n";
+                      }
+
+                      std::cout << " /* Warning: address points to a valid object/reloc, "
+                            "destination has no label */" << "\n";
+                      std::cout << "\t\t.long   0x" << std::hex << value << "\n";
+                  }
 
                   addr += 4;
                   len -= 4;
@@ -459,10 +479,21 @@ print_region (const Region *reg, const Image::Object *obj, LinearExecutable *le,
 
       /* TODO: limit by relocs */
 
-      print_label (anal->get_label (addr));
+      next_label = anal->get_label (addr);
+      if (next_label != NULL)
+        {
+          print_label (next_label);
+        }
+      else
+        {
+         std::cerr << "Warning: VTABLE has no label: 0x"
+             << std::hex << addr << ".\n";
+
+         std::cout << " /* Warning: Start of VTABLE, but has no label */" << "\n";
+       }
       next_label = anal->get_next_label (addr);
 
-      while (addr < reg->get_end_address ())
+      for (; addr < reg->get_end_address (); addr += 4)
         {
           if (next_label != NULL and addr == next_label->get_address ())
             {
@@ -472,16 +503,25 @@ print_region (const Region *reg, const Image::Object *obj, LinearExecutable *le,
 
           func_addr = read_le<uint32_t> (obj->get_data_at (addr));
 
-          if (func_addr != 0)
+          if (func_addr == 0)
             {
-              label = anal->get_label (func_addr);
-              assert (label != NULL);
-              std::cout << "\t\t.long   " << *label << "\n";
+              std::cout << "\t\t.long   0\n";
+              continue;
             }
-          else
-            std::cout << "\t\t.long   0\n";
 
-          addr += 4;
+          label = anal->get_label (func_addr);
+
+          if (label == NULL)
+            {
+              if (warn_once)
+                {
+                  warn_once = false;
+                  std::cerr << "Warning: Some addresses in VTABLE have no label, first: 0x"
+                      << std::hex << func_addr << ".\n";
+                }
+              continue;
+            }
+          std::cout << "\t\t.long   " << *label << "\n";
         }
       break;
 
@@ -568,28 +608,36 @@ debug_print_regions (Analyser *anal)
 }
 
 void
-main_execute(const char *options_fname)
+main_execute(Options &options)
 {
   std::unique_ptr<LinearExecutable> le;
+  std::unique_ptr<SymbolMap> syms;
   std::unique_ptr<Image> image;
   std::ifstream ifs;
   Analyser anal;
 
-  ifs.open (options_fname, std::ios::binary);
+  syms = std::unique_ptr<SymbolMap>(
+      new SymbolMap
+  );
+
+  if (!options.mapfile.empty())
+    syms->load_file_map(options.mapfile);
+
+  ifs.open (options.exefile, std::ios::binary);
   if(!ifs.is_open())
     {
-      throw Error() << "Error opening file: " << options_fname;
+      throw Error() << "Error opening file: " << options.exefile;
     }
 
   le = std::unique_ptr<LinearExecutable>(
-      LinearExecutable::load (&ifs, options_fname)
+      LinearExecutable::load (&ifs, options.exefile)
   );
 
   image = std::unique_ptr<Image>(
       create_image (&ifs, le.get())
   );
 
-  anal = Analyser (le.get(), image.get());
+  anal = Analyser (le.get(), image.get(), syms.get());
 
   KnownFile::check(anal, le.get());
   KnownFile::pre_anal_fixups_apply(anal);
@@ -604,15 +652,47 @@ main_execute(const char *options_fname)
 int
 main (int argc, char **argv)
 {
-  if (argc < 2)
+  static const option longopts[] = {
+      {"exefile", required_argument, NULL, 'e'},
+      {"mapfile", required_argument, NULL, 'm'},
+      {0}};
+  bool show_usage = false;
+  Options options;
+
+  while (1)
     {
-      std::cerr << "Usage: " << argv[0] << " [main.exe]\n";
+      const int opt = getopt_long(argc, argv, "he:m:", longopts, 0);
+
+      if (opt == -1) {
+          break;
+      }
+
+      switch (opt) {
+        case 'e':
+          options.exefile = optarg;
+          break;
+        case 'm':
+          options.mapfile = optarg;
+          break;
+        case 'h':
+        default: /* '?' */
+          show_usage = true;
+          break;
+      }
+    }
+
+  if (options.exefile.empty())
+    show_usage = true;
+
+  if (show_usage)
+    {
+      std::cerr << "Usage: " << argv[0] << " -e <main.exe> [-m <symbols.map>]\n";
       return 1;
     }
 
   try
     {
-      main_execute(argv[1]);
+      main_execute(options);
     }
   catch (const std::exception &e)
     {

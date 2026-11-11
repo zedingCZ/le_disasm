@@ -26,8 +26,10 @@ public:
   enum Type
   {
     NOT_KNOWN,
-    KNOWN_SWARS_FINAL_MAIN,
-    KNOWN_GW_FINAL_MAIN
+    KNOWN_GENEWARS_NOV96_GW,
+    KNOWN_GENEWARS_SEP96_GW,
+    KNOWN_SYNDWARS_FINAL_MAIN,
+    KNOWN_SYNDPLUS_FINAL_MAIN,
   };
 
   static void check(Analyser &anal, LinearExecutable *le);

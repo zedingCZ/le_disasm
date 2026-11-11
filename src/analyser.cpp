@@ -24,6 +24,7 @@
 #include "label.hpp"
 #include "le.hpp"
 #include "regions.hpp"
+#include "symbol_map.hpp"
 
 using std::ios;
 
@@ -58,7 +59,7 @@ Analyser::add_initial_regions (void)
 }
 
 void
-Analyser::add_eip_to_trace_queue (void)
+Analyser::add_eip_to_labels (void)
 {
   const LEOH *ohdr;
   const LEH *hdr;
@@ -67,8 +68,20 @@ Analyser::add_eip_to_trace_queue (void)
   hdr = this->le->get_header ();
   ohdr = this->le->get_object_header (hdr->eip_object_index);
   eip = ohdr->base_address + hdr->eip_offset;
-  this->add_code_trace_address (eip);
   this->set_label (Label (eip, Label::FUNCTION, "_start"));
+}
+
+void
+Analyser::add_symbols_to_labels (void)
+{
+  assert(this->symbols != NULL);
+
+  for (auto it = this->symbols->begin(); it != this->symbols->end(); it++)
+    {
+      const Symbol *symbol = &(*it);
+
+      this->set_label (Label (symbol->get_address(), symbol->get_type(), symbol->get_name()));
+    }
 }
 
 void
@@ -77,7 +90,9 @@ Analyser::add_labels_to_trace_queue (void)
   for (auto it = this->labels.begin(); it != this->labels.end(); it++)
     {
       Label *label = &it->second;
-      if (label->get_type() == Label::FUNCTION or label->get_type() == Label::JUMP)
+      if (label->get_type() == Label::FUNCTION or
+          label->get_type() == Label::JUMP or
+          label->get_type() == Label::UNKNOWN)
         this->add_code_trace_address (label->get_address());
     }
 }
@@ -101,6 +116,20 @@ Analyser::trace_code (void)
   }
 }
 
+bool
+Analyser::is_valid_acceptable_instruction (Instruction *inst)
+{
+    const char *invalids[] = {"(bad)", "ss", "gs"};
+    std::string text = inst->get_string();
+
+    for (size_t i = 0; i < sizeof(invalids)/sizeof(invalids[0]); ++i) {
+        if (text.compare(invalids[i]) == 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void
 Analyser::trace_code_at_address (uint32_t start_addr)
 {
@@ -111,6 +140,7 @@ Analyser::trace_code_at_address (uint32_t start_addr)
   const Image::DataVector *data;
   Instruction inst;
   const void *data_ptr;
+  Region::Type reg_type;
 
   reg = this->get_region_at_address (start_addr);
   if (reg == NULL)
@@ -120,7 +150,8 @@ Analyser::trace_code_at_address (uint32_t start_addr)
       return;
     }
 
-  if (reg->get_type () == Region::CODE) /* already traced */
+  reg_type = reg->get_type ();
+  if (reg_type != Region::UNKNOWN) /* already traced */
     return;
 
   end_addr = reg->get_end_address ();
@@ -128,11 +159,19 @@ Analyser::trace_code_at_address (uint32_t start_addr)
   data = obj->get_data ();
 
   addr = start_addr;
+  reg_type = Region::CODE; /* treat the region as code by default */
 
   while (addr < end_addr)
   {
     data_ptr = &data->front () + addr - obj->get_base_address ();
     this->disasm.disassemble (addr, data_ptr, end_addr - addr, &inst);
+
+    if (!is_valid_acceptable_instruction (&inst)) {
+        /* treating the region as code was wrong, make it data */
+        reg_type = Region::DATA;
+        addr += inst.get_size();
+        goto end;
+    }
 
     if (inst.get_target () != 0)
       {
@@ -169,7 +208,7 @@ Analyser::trace_code_at_address (uint32_t start_addr)
 
 end:
   this->insert_region
-    (reg, Region (start_addr, addr - start_addr, Region::CODE));
+    (reg, Region (start_addr, addr - start_addr, reg_type));
 }
 
 Region *
@@ -421,6 +460,7 @@ Analyser::Analyser (void)
 {
   this->le    = NULL;
   this->image = NULL;
+  this->symbols = NULL;
   this->known_type = KnownFile::NOT_KNOWN;
 }
 
@@ -429,10 +469,11 @@ Analyser::Analyser (const Analyser &other)
   *this = other;
 }
 
-Analyser::Analyser (LinearExecutable *le, Image *img)
+Analyser::Analyser (LinearExecutable *le, Image *img, SymbolMap *syms)
 {
   this->le    = le;
   this->image = img;
+  this->symbols = syms;
   this->add_initial_regions ();
   this->known_type = KnownFile::NOT_KNOWN;
 }
@@ -442,6 +483,7 @@ Analyser::operator= (const Analyser &other)
 {
   this->le     = other.le;
   this->image  = other.image;
+  this->symbols = other.symbols;
   this->disasm = other.disasm;
   this->known_type = other.known_type;
   this->add_initial_regions ();
@@ -482,8 +524,7 @@ Analyser::set_label (const Label &lab)
   label = this->get_label (lab.get_address ());
   if (label != NULL)
     {
-      if (label->get_type () == Label::FUNCTION
-          or !label->get_name ().empty ())
+        this->improve_label(lab);
         return;
     }
 
@@ -496,10 +537,28 @@ Analyser::remove_label (uint32_t addr)
   this->labels.erase (addr);
 }
 
+Label *
+Analyser::improve_label (const Label &lab)
+{
+  Analyser::LabelMap::iterator itr;
+  Label *label;
+
+  itr = this->labels.find (lab.get_address ());
+  if (itr == this->labels.end ())
+    return NULL;
+
+  label = &itr->second;
+  label->improve_from(lab);
+
+  return label;
+}
+
 void
 Analyser::run (void)
 {
-  this->add_eip_to_trace_queue ();
+  this->add_symbols_to_labels ();
+  this->add_eip_to_labels ();
+  this->add_labels_to_trace_queue ();
   std::cerr << "Tracing code directly accessible from the entry point...\n";
   this->trace_code ();
   std::cerr << "Tracing text relocs for vtables...\n";

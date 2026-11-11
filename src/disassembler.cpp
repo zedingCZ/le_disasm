@@ -123,7 +123,7 @@ Disassembler::disassemble (uint32_t addr, const void *data, size_t length,
 
   size = this->print_insn (addr, this->info);
   if (size < 0)
-    throw std::runtime_error ("Failed to disassemble instruction");
+    throw std::runtime_error ("Failed to disassemble, opcodes caused decoder error");
 
   inst->string = lower (strip (context.string.str ()));
   inst->size   = size;
@@ -133,11 +133,16 @@ Disassembler::disassemble (uint32_t addr, const void *data, size_t length,
   if (size == 0)
     return;
 
+  // If instruction cannot be decoded but didn't caused error, just return it
+  // Upper level functions are expected to re-check and take action
+  if (inst->string.compare("(bad)") == 0)
+    return;
+
   set_target_and_type(addr, data, inst);
 }
 
 void
-Disassembler::set_target_and_type(uint32_t addr, const void *data, Instruction *inst)
+Disassembler::set_target_and_type (uint32_t addr, const void *data, Instruction *inst)
 {
   uint8_t data0, data1 = 0;
   bool have_target;
@@ -146,7 +151,7 @@ Disassembler::set_target_and_type(uint32_t addr, const void *data, Instruction *
   data0 = ((uint8_t *) data)[0];
 
   /* ignore prefixes for branch prediction (2e/3e) and for operand size (66/67) */
-  if ((data0 == 0x2e) || (data0 == 0x3e) || (data0 == 0x66) || (data0 == 0x67))
+  if ((data0 == 0x2e) or (data0 == 0x3e) or (data0 == 0x66) or (data0 == 0x67))
     {
       if (inst->size > 1)
         data0 = ((uint8_t *) data)[1];
@@ -193,11 +198,12 @@ Disassembler::set_target_and_type(uint32_t addr, const void *data, Instruction *
       {
         have_target = false;
 
-        /* whatever... */
-        if (inst->string.find ("jmp") != std::string::npos)
-          inst->type = Instruction::JUMP;
-        else
-          inst->type = Instruction::CALL;
+        uint8_t reg_field = (data1 & 0x38) >> 3;
+        if (reg_field == 2 or reg_field == 3) {
+            inst->type = Instruction::CALL;
+        } else if (reg_field == 4 or reg_field == 5) {
+            inst->type = Instruction::JUMP;
+        }
       }
 
   if (have_target
